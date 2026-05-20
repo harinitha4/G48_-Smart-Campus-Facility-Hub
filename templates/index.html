@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Facilities Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+</head>
+
+<body class="home">
+
+    <header class="navbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="SCF Hub logo icon">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}" class="btn active">Home</a></li>
+                <li><a href="{{ url_for('facilities') }}">Facilities</a></li>
+ 
+                <li><a href="{{ url_for('bookings_360') }}">Bookings</a></li>
+
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+
+
+                <li class="dropdown">
+                    <a href="/login" class="btn">Login</a>
+                    <div class="dropdown-content">
+                        <a href="#">Admin</a>
+                        <a href="#">User</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+        </div>
+
+
+
+        <!-- Two-column Home layout -->
+        <div class="home-main">
+            <div class="home-left">
+                <h1 style="margin-left: -10px;">SMART CAMPUS <br> FACILITIES HUB</h1>
+                <div class="subtitle">Book classrooms, courts & meeting rooms easily.</div>
+
+                <div class="home-cta">
+                    <a href="{{ url_for('facilities') }}" class="cta-btn">Get Started</a>
+                </div>
+
+                <div class="home-stats" aria-label="Booking statistics">
+
+                    <div class="stat-pill">
+                        <div class="k" id="statTotalBookings">124</div>
+                        <div class="l">Total bookings</div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="k" id="statSpacesAvailable">27</div>
+                        <div class="l">Spaces available</div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="k" id="statAvgTime">5m</div>
+
+                        <div class="l">Avg booking time</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-right">
+                <div class="facility-grid" aria-label="Live facility availability">
+                    <!-- Demo values for now (your friend's code can replace them later) -->
+                    <div class="facility-card">
+                        <div class="facility-top">
+                            <div class="facility-icon">🏀</div>
+                            <div class="av-badge">12 Free</div>
+                        </div>
+                        <div class="facility-title">Sports Courts</div>
+                        <div class="facility-desc">Basketball, badminton & tennis slots.</div>
+                    </div>
+
+                    <div class="facility-card">
+                        <div class="facility-top">
+                            <div class="facility-icon">🏢</div>
+                            <div class="av-badge">3 Left</div>
+                        </div>
+                        <div class="facility-title">Meeting Rooms</div>
+                        <div class="facility-desc">Group discussions & presentations.</div>
+                    </div>
+
+                    <div class="facility-card">
+                        <div class="facility-top">
+                            <div class="facility-icon">📚</div>
+                            <div class="av-badge">8 Free</div>
+                        </div>
+                        <div class="facility-title">Study Space</div>
+                        <div class="facility-desc">Focused learning for individuals.</div>
+                    </div>
+
+                    <div class="facility-card">
+                        <div class="facility-top">
+                            <div class="facility-icon">🎟️</div>
+                            <div class="av-badge">5 Free</div>
+                        </div>
+                        <div class="facility-title">Event Halls</div>
+                        <div class="facility-desc">Workshops, seminars & events.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section class="steps-section" aria-label="How it works">
+        <div class="steps-grid">
+            <div class="how-card">
+                <div class="step-no">01</div>
+                <div class="how-icon">📝</div>
+                <div class="how-title">Choose a Facility</div>
+                <div class="how-desc">Pick the space you need and view availability instantly.</div>
+            </div>
+
+            <div class="how-card">
+                <div class="step-no">02</div>
+                <div class="how-icon">📅</div>
+                <div class="how-title">Book a Slot</div>
+                <div class="how-desc">Select date and time, then confirm your booking in seconds.</div>
+            </div>
+
+            <div class="how-card">
+                <div class="step-no">03</div>
+                <div class="how-icon">🤝</div>
+                <div class="how-title">Get Guided & Access</div>
+                <div class="how-desc">Turn up on time and enjoy smooth access with SCF Hub support.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROBOT IMAGE -->
+
+    <div class="robot-container" id="robotContainer" style="display:none;">
+        <img src="{{ url_for('static', filename='robot.png') }}" alt="Robot" class="robot-img" id="robotImg">
+    </div>
+
+
+    <!-- PARTICLES BACKGROUND -->
+    <div id="particles-js"></div>
+
+    <!-- PARTICLES JS LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+    <!-- PARTICLES CONFIG -->
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {
+                    "value": 60,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#00d4ff"
+                },
+                "shape": {
+                    "type": "circle",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    }
+                },
+                "opacity": {
+                    "value": 0.3,
+                    "random": false,
+                    "anim": {
+                        "enable": false,
+                        "speed": 1,
+                        "opacity_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 3,
+                    "random": true,
+                    "anim": {
+                        "enable": false,
+                        "speed": 2,
+                        "size_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#00d4ff",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 6,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false,
+                    "attract": {
+                        "enable": false,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
+                }
+            },
+            "interactivity": {}
+        });
+    </script>
+
+    <!-- Scroll Script to Change Robot -->
+    <script>
+        (function () {
+            var threshold = 100;
+            var robotImg = document.getElementById('robotImg');
+            var robotContainer = document.getElementById('robotContainer');
+
+            function updateRobot() {
+                if (window.scrollY > threshold) {
+                    robotContainer.style.display = 'block';
+                    robotImg.src = "{{ url_for('static', filename='robot2.png') }}";
+                } else {
+                    robotContainer.style.display = 'none';
+                    robotImg.src = "{{ url_for('static', filename='robot.png') }}";
+                }
+            }
+
+            window.addEventListener('scroll', updateRobot);
+            updateRobot();
+        })();
+    </script>
+
+
+</body>
+</html>
+
