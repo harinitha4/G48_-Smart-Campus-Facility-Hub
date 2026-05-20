@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Campus Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+    <div class="bg-overlay" aria-hidden="true"></div>
+
+    <nav>
+        <div class="site-branding">
+            <img src="{{ url_for('static', filename='images/download-1.svg') }}" alt="Download" class="logo-img">
+        </div>
+        <a href="/admin">🏠 Dashboard</a>
+        <a href="/admin/users">👥 Users</a>
+        <a href="/admin/bookings">💵 Bookings</a>
+        <a href="/admin/facilities">🏛️ Facilities</a>
+        <a href="/admin/todays-schedule">🗓️ Schedule</a>
+        <a href="/admin/activity">⚡ Activity</a>
+
+        <a href="/logout">🚪 Logout</a>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="color: #4caf50; padding: 12px; background: rgba(76,175,80,0.1); border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4caf50;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="{{ url_for('static', filename='particle-network.js') }}"></script>
+</body>
+</html>
+

@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .page-title { margin-bottom: 18px; }
+  .page-title h1 { font-size: 28px; font-weight: 800; color: #f0fafa; }
+  .page-title p { color: #7ab8c0; font-size: 14px; margin-top: 4px; }
+
+  .panel {
+    background: #0d4a56;
+    border: 1px solid rgba(0,196,204,0.15);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .panel-title { font-size: 15px; font-weight: 700; color: #f0fafa; }
+  .panel-badge {
+    background: rgba(0,196,204,0.15);
+    color: #00c4cc;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,196,204,0.2);
+  }
+
+  .filters { display:flex; gap:10px; flex-wrap:wrap; margin-top: 8px; }
+  .fbtn {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(0,196,204,0.35);
+    background: rgba(0,196,204,0.08);
+    color: #9cdcfe;
+    cursor:pointer;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .fbtn.active { background: rgba(0,196,204,0.18); color:#00c4cc; border-color: rgba(0,196,204,0.55); }
+
+  .day-block { margin-top: 18px; }
+  .day-head {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom: 10px;
+  }
+  .day-title {
+    font-size: 13px; color:#7ab8c0; font-weight: 900;
+    letter-spacing:0.05em; text-transform: uppercase;
+  }
+
+  .cards { display:grid; grid-template-columns: 1fr; gap: 10px; }
+
+  .card {
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.03);
+    padding: 14px;
+    display:flex;
+    gap: 12px;
+    align-items:flex-start;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 999px;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .c-bookings { background: #00c4cc; box-shadow: 0 0 10px rgba(0,196,204,0.5); }
+  .c-users { background: #a78bfa; box-shadow: 0 0 10px rgba(167,139,250,0.5); }
+  .c-facilities { background: #4ade80; box-shadow: 0 0 10px rgba(74,222,128,0.5); }
+  .c-system { background: #2de0e8; box-shadow: 0 0 10px rgba(45,224,232,0.5); }
+  .c-alerts { background: #fb923c; box-shadow: 0 0 10px rgba(251,146,60,0.5); }
+
+  .card h3 { font-size: 13px; color:#f0fafa; margin: 0; font-weight: 900; }
+  .card p { margin: 4px 0 0; font-size: 12px; color:#7ab8c0; line-height: 1.4; }
+  .card .meta { margin-left:auto; font-size: 11px; color:#7ab8c0; font-weight: 800; white-space:nowrap; }
+
+  .card.hidden { display:none; }
+</style>
+
+<div class="page-title">
+  <h1>⚡ Recent Activity</h1>
+  <p>Live feed grouped by day with filter buttons.</p>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">Activity Feed</div>
+    <div class="panel-badge">Live</div>
+  </div>
+
+  <div class="filters">
+    <button class="fbtn active" type="button" data-type="all">All</button>
+    <button class="fbtn" type="button" data-type="Bookings">Bookings</button>
+    <button class="fbtn" type="button" data-type="Users">Users</button>
+    <button class="fbtn" type="button" data-type="Facilities">Facilities</button>
+    <button class="fbtn" type="button" data-type="System">System</button>
+    <button class="fbtn" type="button" data-type="Alerts">Alerts</button>
+  </div>
+
+  <div id="activity">
+    <div class="day-block" data-day="Today">
+      <div class="day-head">
+        <div class="day-title">Today</div>
+        <div class="day-title" style="opacity:0.8;">Newest</div>
+      </div>
+      <div class="cards">
+        <div class="card" data-type="Bookings">
+          <div class="dot c-bookings"></div>
+          <div>
+            <h3>Ali Hassan booked Computer Lab A</h3>
+            <p>Booking created and awaiting admin review.</p>
+          </div>
+          <div class="meta">2 minutes ago</div>
+        </div>
+
+        <div class="card" data-type="Alerts">
+          <div class="dot c-alerts"></div>
+          <div>
+            <h3>Pending approval requires attention</h3>
+            <p>One booking is still marked as pending.</p>
+          </div>
+          <div class="meta">14 minutes ago</div>
+        </div>
+
+        <div class="card" data-type="System">
+          <div class="dot c-system"></div>
+          <div>
+            <h3>Auto-check: schedule sync complete</h3>
+            <p>System verified schedule consistency for today.</p>
+          </div>
+          <div class="meta">1 hour ago</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-block" data-day="Yesterday">
+      <div class="day-head">
+        <div class="day-title">Yesterday</div>
+        <div class="day-title" style="opacity:0.8;">Recent</div>
+      </div>
+      <div class="cards">
+        <div class="card" data-type="Users">
+          <div class="dot c-users"></div>
+          <div>
+            <h3>New user registered: Sara Ahmed</h3>
+            <p>Account created successfully and ready to book facilities.</p>
+          </div>
+          <div class="meta">3 hours ago</div>
+        </div>
+
+        <div class="card" data-type="Facilities">
+          <div class="dot c-facilities"></div>
+          <div>
+            <h3>Sports Hall maintenance completed</h3>
+            <p>Facility is operational and ready for reservations.</p>
+          </div>
+          <div class="meta">5 hours ago</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-block" data-day="Earlier">
+      <div class="day-head">
+        <div class="day-title">Earlier</div>
+        <div class="day-title" style="opacity:0.8;">Archive</div>
+      </div>
+      <div class="cards">
+        <div class="card" data-type="System">
+          <div class="dot c-system"></div>
+          <div>
+            <h3>Admin logged in from new device</h3>
+            <p>Security event registered.</p>
+          </div>
+          <div class="meta">Yesterday</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.fbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const type = btn.dataset.type;
+
+      document.querySelectorAll('#activity .card').forEach(card => {
+        const ctype = card.dataset.type;
+        if (type === 'all') card.classList.remove('hidden');
+        else card.classList.toggle('hidden', ctype !== type);
+      });
+    });
+  });
+</script>
+{% endblock %}
+

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Facilities Management</h1>
+
+<a href="/admin/add-facility" style="display: inline-block; padding: 12px 24px; background: rgba(76,175,80,0.15); color: #4caf50; text-decoration: none; border-radius: 8px; border: 1px solid rgba(76,175,80,0.3); font-weight: 500; margin-bottom: 24px;">
+    ➕ Add New Facility
+</a>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Pictures</th>
+        <th>Description</th>
+        <th>Actions</th>
+    </tr>
+    {% for facility in facilities %}
+    <tr>
+        <td>{{ facility.id }}</td>
+        <td>{{ facility.name }}</td>
+        <td>{{ facility.location }}</td>
+        <td>
+            {% set imgs = (facility.image_filenames or '').split(',') if facility.image_filenames else [] %}
+            {% if imgs and imgs[0] %}
+                <div style="display:flex; gap:8px; flex-wrap:wrap; max-width: 260px;">
+                    {% for img in imgs[:3] %}
+                        <img src="{{ url_for('static', filename='facility_uploads/' ~ img) }}" alt="{{ facility.name }}" style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid rgba(156,220,254,0.15);" />
+                    {% endfor %}
+                </div>
+            {% else %}
+                <span style="color:#6b7a8a;">No image</span>
+            {% endif %}
+        </td>
+        <td>{{ facility.description }}</td>
+        <td>
+            <a href="/admin/edit-facility/{{ facility.id }}" style="color: #9cdcfe; margin-right: 12px;">✏️ Edit</a>
+            <a href="/admin/delete-facility/{{ facility.id }}" onclick="return confirm('Delete this facility?')" style="color: #e57373;">🗑️ Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
