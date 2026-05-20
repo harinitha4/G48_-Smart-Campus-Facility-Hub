@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1>Edit Schedule Item</h1>
+  
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <p class="flash">{{ messages[0] }}</p>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="/admin/todays-schedule/update/{{ item['id'] }}">
+    <label>Date</label>
+    <input type="date" name="date" value="{{ item['date'] }}" required />
+
+    <label>Time</label>
+    <input type="time" name="time" value="{{ item['time'] }}" required />
+
+    <label>Title</label>
+    <input type="text" name="title" value="{{ item['title'] }}" required />
+
+    <label>Location</label>
+    <input type="text" name="location" value="{{ item['location'] or '' }}" />
+
+    <label>Notes</label>
+    <input type="text" name="notes" value="{{ item['notes'] or '' }}" />
+
+    <button type="submit">Save Changes</button>
+  </form>
+
+  <div style="margin-top: 14px;">
+    <a href="/admin/todays-schedule?date={{ item['date'] }}" style="color:#9cdcfe;">Back to Today’s Schedule</a>
+  </div>
+</div>
+{% endblock %}
+

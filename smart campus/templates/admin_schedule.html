@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .page-title { margin-bottom: 18px; }
+  .page-title h1 { font-size: 28px; font-weight: 800; color: #f0fafa; }
+  .page-title p { color: #7ab8c0; font-size: 14px; margin-top: 4px; }
+
+  .panel {
+    background: #0d4a56;
+    border: 1px solid rgba(0,196,204,0.15);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .panel-title { font-size: 15px; font-weight: 700; color: #f0fafa; }
+  .panel-badge {
+    background: rgba(0,196,204,0.15);
+    color: #00c4cc;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,196,204,0.2);
+  }
+
+  .tabs {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .tab-btn {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(0,196,204,0.35);
+    background: rgba(0,196,204,0.08);
+    color: #9cdcfe;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .tab-btn.active { background: rgba(0,196,204,0.18); color: #00c4cc; border-color: rgba(0,196,204,0.55); }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .stat .num { font-size: 22px; font-weight: 900; color: #00c4cc; }
+  .stat .lbl { font-size: 12px; color: #7ab8c0; margin-top: 4px; font-weight: 700; }
+
+  .timeline-wrap { position: relative; }
+  .timeline {
+    position: relative;
+    border-left: 2px solid rgba(0,196,204,0.45);
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .now-indicator {
+    position: absolute;
+    left: -8px;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: #fb923c;
+    box-shadow: 0 0 14px rgba(251,146,60,0.55);
+    top: 0;
+    transform: translateY(0);
+  }
+  .now-line {
+    position: absolute;
+    left: 0px;
+    width: 2px;
+    background: #fb923c;
+    height: 120px;
+    opacity: 0.85;
+    top: 0;
+  }
+  .now-label {
+    position: absolute;
+    left: 26px;
+    background: rgba(251,146,60,0.15);
+    border: 1px solid rgba(251,146,60,0.35);
+    padding: 6px 10px;
+    border-radius: 10px;
+    color: #ffd39f;
+    font-weight: 800;
+    font-size: 12px;
+    top: 0;
+    transform: translateY(-50%);
+    white-space: nowrap;
+  }
+
+  .session {
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.03);
+    padding: 12px 14px;
+    position: relative;
+  }
+
+  .session::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 18px;
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: rgba(0,196,204,0.65);
+    box-shadow: 0 0 10px rgba(0,196,204,0.35);
+  }
+
+  .session.morning::before { background: rgba(0,196,204,0.9); }
+  .session.afternoon::before { background: rgba(167,139,250,0.9); }
+  .session.evening::before { background: rgba(251,146,60,0.9); }
+
+  .session-time { font-weight: 900; font-size: 14px; color: #00c4cc; }
+  .session-title { font-weight: 900; font-size: 15px; margin-top: 4px; color: #f0fafa; }
+  .session-sub { font-size: 12px; color: #7ab8c0; margin-top: 4px; font-weight: 700; }
+  .session-notes { font-size: 12px; color: rgba(240,250,250,0.85); margin-top: 6px; }
+
+  .session-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .link-btn {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(156,220,254,0.35);
+    background: rgba(0,196,204,0.08);
+    color: #9cdcfe;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .link-btn.delete { border-color: rgba(229,115,115,0.6); color: #e57373; background: transparent; }
+
+  .session.hidden { display: none; }
+
+  @media (max-width: 1100px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+
+<div class="page-title">
+  <h1>🗓 Today’s Schedule</h1>
+  <p>Color-coded timeline with NOW indicator and filter tabs.</p>
+</div>
+
+<div class="panel" style="margin-bottom: 18px;">
+  <div class="panel-header">
+    <div class="panel-title">Filters</div>
+    <div class="panel-badge">{{ selected_date }}</div>
+  </div>
+
+  <form method="GET" action="/admin/todays-schedule" style="margin-bottom: 10px;">
+    <label>Date</label>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+      <input type="date" name="date" value="{{ selected_date }}" required style="width: 220px;" />
+      <button type="submit" style="width:auto;">Apply</button>
+    </div>
+  </form>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-filter="all" type="button">All</button>
+    <button class="tab-btn" data-filter="morning" type="button">Morning</button>
+    <button class="tab-btn" data-filter="afternoon" type="button">Afternoon</button>
+    <button class="tab-btn" data-filter="evening" type="button">Evening</button>
+  </div>
+</div>
+
+<div class="summary-grid">
+  <div class="stat"><div class="num">{{ schedules|length }}</div><div class="lbl">Total Sessions</div></div>
+  {# Safely count sessions that have a usable time value #}
+  <div class="stat">
+    <div class="num">{{ schedules|selectattr('time')|list|length }}</div>
+    <div class="lbl">Scheduled</div>
+  </div>
+  <div class="stat"><div class="num" id="nowCount">0</div><div class="lbl">Happening Now</div></div>
+  <div class="stat"><div class="num">{{ selected_date }}</div><div class="lbl">Date</div></div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">Timeline</div>
+    <div class="panel-badge" id="nowBadge">NOW</div>
+  </div>
+
+  <div class="timeline-wrap">
+    <div class="now-line" id="nowLine" style="display:none;"></div>
+    <div class="now-indicator" id="nowDot" style="display:none;"></div>
+    <div class="now-label" id="nowLabel" style="display:none;">NOW</div>
+
+    <div class="timeline" id="timeline">
+      {% for s in schedules %}
+        {% set t = s['time'] %}
+        {% if not t %}
+          {% set part = 'morning' %}
+        {% elif t < '12:00' %}
+          {% set part = 'morning' %}
+        {% elif t < '17:00' %}
+          {% set part = 'afternoon' %}
+        {% else %}
+          {% set part = 'evening' %}
+        {% endif %}
+
+        <div class="session {{ part }}" data-part="{{ part }}" data-time-raw="{{ s['time'] }}">
+          <div class="session-time">{{ s['time'] }}</div>
+          <div class="session-title">{{ s['title'] }}</div>
+          <div class="session-sub">{{ s['location'] or '' }}</div>
+          {% if s['notes'] %}<div class="session-notes">{{ s['notes'] }}</div>{% endif %}
+
+          <div class="session-actions">
+            <a class="link-btn" href="/admin/todays-schedule/edit/{{ s['id'] }}">Edit</a>
+            <form method="POST" action="/admin/todays-schedule/delete/{{ s['id'] }}" style="margin:0;">
+              <button class="link-btn delete" type="submit">Delete</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if schedules|length == 0 %}
+      <div class="empty-state">
+        <h3>No sessions for this date.</h3>
+        <p>Add one from the schedule page.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function parseTimeToMinutes(str) {
+    // expects HH:MM (24h) or HH:MM:SS
+    const m = String(str).match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return null;
+    const hh = parseInt(m[1], 10);
+    const mm = parseInt(m[2], 10);
+    return hh * 60 + mm;
+  }
+
+  // Filter tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+
+      document.querySelectorAll('.session').forEach(card => {
+        if (f === 'all') card.classList.remove('hidden');
+        else {
+          const p = card.dataset.part;
+          card.classList.toggle('hidden', p !== f);
+        }
+      });
+    });
+  });
+
+  // NOW indicator: show near the first upcoming session within next 60 minutes
+  (function nowIndicator() {
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const sessions = Array.from(document.querySelectorAll('.session'));
+
+    let best = null;
+    for (const el of sessions) {
+      const tRaw = el.dataset.timeRaw;
+      const tMin = parseTimeToMinutes(tRaw);
+      if (tMin === null) continue;
+
+      const diff = tMin - nowMin;
+      if (diff >= 0 && diff <= 60) {
+        best = { el, diff };
+        break;
+      }
+    }
+
+    const line = document.getElementById('nowLine');
+    const dot = document.getElementById('nowDot');
+    const label = document.getElementById('nowLabel');
+    const badge = document.getElementById('nowBadge');
+    const nowCount = document.getElementById('nowCount');
+
+    // Count sessions happening now within same hour (rough)
+    const happeningNow = sessions.filter(el => {
+      const tMin = parseTimeToMinutes(el.dataset.timeRaw);
+      if (tMin === null) return false;
+      return Math.abs(tMin - nowMin) <= 15;
+    }).length;
+    nowCount.textContent = happeningNow;
+
+    if (!best) {
+      // hide indicator if no upcoming within 60m
+      line.style.display = 'none';
+      dot.style.display = 'none';
+      label.style.display = 'none';
+      badge.textContent = 'NOW';
+      return;
+    }
+
+    const el = best.el;
+    const wrap = document.querySelector('.timeline-wrap');
+    const elRect = el.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+
+    const y = (elRect.top - wrapRect.top) + (elRect.height / 2);
+
+    line.style.display = 'block';
+    dot.style.display = 'block';
+    label.style.display = 'block';
+
+    line.style.top = (y - 60) + 'px';
+    dot.style.transform = 'translateY(' + (y - 7) + 'px)';
+    dot.style.top = '0px';
+    label.style.top = y + 'px';
+  })();
+</script>
+{% endblock %}
+
+
+
