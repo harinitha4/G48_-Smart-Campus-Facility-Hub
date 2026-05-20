@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookings</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <div class="brand-mark">🎫</div>
+        <div class="brand-text">
+          <div class="brand-name">Smart Campus</div>
+          <div class="brand-sub">Facility Hub</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-link" href="/dashboard">Dashboard</a>
+      <a class="nav-link active" href="/bookings">My Bookings</a>
+      <a class="nav-link" href="/profile">My Profile</a>
+
+      <a class="nav-link" href="#">Notifications</a>
+      <a class="nav-link" href="#">Help</a>
+      <a class="nav-link" href="/logout">Logout</a>
+    </nav>
+
+    <div class="sidebar-cta">
+      <div class="calendar-card">
+        <div class="calendar-head">
+          <span class="calendar-dot"></span>
+          <div>
+            <div class="calendar-title">Booking History</div>
+            <div class="calendar-sub">Manage reservations</div>
+          </div>
+        </div>
+        <div class="calendar-grid" aria-hidden="true"></div>
+        <button class="cta-button" type="button" onclick="location.href='/dashboard'">Browse Facilities</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="welcome">
+        <div class="welcome-title">My Bookings 📅</div>
+        <div class="welcome-sub">Your reservations and cancellation status.</div>
+      </div>
+
+      <div class="top-actions">
+        <div class="bell-wrap">
+          <button class="icon-btn" type="button" aria-label="Notifications">
+            <span class="icon">🔔</span>
+            <span class="badge">3</span>
+          </button>
+        </div>
+        <div class="profile">
+          <button class="profile-btn" type="button">
+            <span class="avatar">{{ (name[0] if name else 'U')|upper }}</span>
+            <span class="profile-caret">▾</span>
+          </button>
+          <div class="profile-menu" role="menu">
+            <a href="/profile" role="menuitem">My Profile</a>
+            <a href="#" role="menuitem">Settings</a>
+            <a href="/logout" role="menuitem">Logout</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="profile-layout" style="margin-top:10px;">
+      <section class="profile-card" style="flex:1; min-width:360px;">
+        <h2 class="profile-title">Booking History</h2>
+
+        {%- with messages = get_flashed_messages() -%}
+          {%- if messages -%}
+            <div class="flash-messages">
+              {%- for msg in messages -%}
+                <div class="flash-message">{{ msg }}</div>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+        {%- endwith -%}
+
+        <div class="bookings-list">
+          {% if bookings %}
+            {% for b in bookings %}
+              <div class="booking-item">
+                <div class="booking-left">
+                  <div class="booking-title">{{ b.facility_title }}</div>
+                  <div class="booking-meta">
+                    {% if b.status == 'approved' %}
+                      <span class="booking-chip" style="border-color:rgba(34,197,94,0.7); background:rgba(34,197,94,0.18);">Status: <b>Approved</b></span>
+                    {% elif b.status == 'rejected' %}
+                      <span class="booking-chip" style="border-color:rgba(239,68,68,0.75); background:rgba(239,68,68,0.18);">Status: <b>Rejected</b></span>
+                    {% elif b.status == 'canceled' %}
+                      <span class="booking-chip" style="border-color:rgba(148,163,184,0.7); background:rgba(148,163,184,0.18);">Status: <b>Canceled</b></span>
+                    {% else %}
+                      <span class="booking-chip">Status: <b>{{ b.status }}</b></span>
+                    {% endif %}
+
+                    <span class="booking-chip">Booked: <b>{{ b.created_at }}</b></span>
+
+                  </div>
+                </div>
+
+                <div class="booking-right">
+                  {% if b.status != 'canceled' %}
+                    <form method="POST" action="/booking/cancel/{{ b.id }}" onsubmit="return confirm('Cancel this booking?')">
+                      <button class="btn btn-outline btn-cancel" type="submit">Cancel Booking</button>
+                    </form>
+                  {% else %}
+                    <button class="btn btn-outline btn-cancel" type="button" disabled style="opacity:0.55; cursor:not-allowed;">Canceled</button>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty">No bookings yet.</div>
+          {% endif %}
+        </div>
+      </section>
+    </section>
+
+    <script>
+      const profileBtn = document.querySelector('.profile-btn');
+      const menu = document.querySelector('.profile-menu');
+      if (profileBtn && menu) {
+        profileBtn.addEventListener('click', () => menu.classList.toggle('open'));
+        document.addEventListener('click', (e) => {
+          if (!profileBtn.contains(e.target)) menu.classList.remove('open');
+        });
+      }
+    </script>
+  </main>
+</body>
+</html>
+
