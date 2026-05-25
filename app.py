@@ -5,8 +5,41 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
-app = Flask(__name__)
+# Multi-template/static support:
+# This repo contains multiple nested versions of templates/static.
+# Configure Flask to search all of them so routes like /login reliably find templates.
+from jinja2 import ChoiceLoader, FileSystemLoader
+
+repo_root = os.path.dirname(__file__)
+
+template_paths = [
+    # Put smart campus first so its login.html wins over any duplicate at top-level templates/
+    os.path.join(repo_root, "smart campus", "templates"),
+    os.path.join(repo_root, "templates"),
+    os.path.join(repo_root, "smart-hub", "templates"),
+    # Some student folders contain templates under an extra nested directory
+    os.path.join(repo_root, "smart campus", "smart campus", "templates"),
+]
+
+
+template_paths = [p for p in template_paths if os.path.isdir(p)]
+
+# Flask only accepts one static_folder.
+# Use the Smart Campus static folder (this matches the majority of your templates).
+main_static_folder = os.path.join(repo_root, "smart campus", "static")
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(repo_root, "templates"),
+    static_folder=main_static_folder,
+)
+
+# Override Jinja loader to include multiple template folders.
+app.jinja_loader = ChoiceLoader([FileSystemLoader(p) for p in template_paths])
+
+
 app.secret_key = "smartcampus_secret_key"
+
 
 
 # ============================================================
@@ -180,10 +213,26 @@ def register():
     return render_template("register.html")
 
 
+@app.route('/admin-login')
+def admin_login():
+    # Just a landing page for admin users
+    return redirect('/login?intended_role=admin')
+
+
+@app.route('/user-login')
+def user_login():
+    # Just a landing page for student users
+    return redirect('/login?intended_role=student')
+
+
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    intended_role = request.args.get('intended_role')
+
     if is_logged_in():
         return redirect("/admin" if session.get("role") == "admin" else "/dashboard")
+
+
 
     if request.method == "POST":
         # Support both username and email login
@@ -224,7 +273,17 @@ def login():
 
         return redirect("/login")
 
+    # If caller asked for admin login UI, prefer the smart-campus themed template.
+    if intended_role == "admin":
+        # Use the Jinja2 ChoiceLoader so templates can come from different folders.
+        # The smart-campus template has <title>Smart Campus - Login</title>.
+        # If it is not found, it will raise so we can see the real issue.
+        return render_template("login.html")
     return render_template("login.html")
+
+
+
+
 
 
 @app.route('/dashboard')

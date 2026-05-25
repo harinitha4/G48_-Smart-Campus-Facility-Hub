@@ -244,11 +244,15 @@
   }
 </style>
 <div class="dashboard-header">
+  <div class="logo" style="margin-bottom: 10px;">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="SCF Hub logo" style="width: 140px; height: auto;" />
+  </div>
   <h1>Admin Dashboard</h1>
   <p>Welcome back! Here's what's happening on campus today.</p>
 </div>
 
 <div class="stats-grid">
+
   <div class="stat-card blue">
     <div class="stat-icon">👥</div>
     <div class="stat-value">{{ users|length }}</div>

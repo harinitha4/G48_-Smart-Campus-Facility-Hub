@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body{font-family:Arial,Helvetica,sans-serif;background:#f6f7fb;margin:0;padding:0}
+        .container{max-width:420px;margin:60px auto;background:#fff;padding:24px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+        h2{margin-top:0}
+        label{display:block;margin:14px 0 6px}
+        input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px}
+        .btn{margin-top:18px;width:100%;padding:11px 12px;background:#2563eb;color:#fff;border:0;border-radius:10px;cursor:pointer}
+        .links{display:flex;justify-content:space-between;margin-top:14px}
+        .msg{color:#ef4444;margin:0 0 10px}
+        .flash{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:10px 12px;border-radius:10px;margin-bottom:14px}
+        a{color:#2563eb;text-decoration:none}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="flash">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" placeholder="admin or student" autocomplete="username">
+
+            <label for="email">OR Email</label>
+            <input id="email" name="email" type="email" placeholder="name@college.edu" autocomplete="email">
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password">
+
+            <button class="btn" type="submit">Login</button>
+        </form>
+
+        <div class="links">
+            <a href="/register">Register</a>
+            <a href="/">Back</a>
+        </div>
+    </div>
+</body>
+</html>
+
