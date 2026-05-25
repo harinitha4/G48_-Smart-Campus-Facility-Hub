@@ -24,7 +24,7 @@
 
       <a class="nav-link" href="/profile">My Profile</a>
 
-      <a class="nav-link" href="#">Notifications</a>
+<a class="nav-link" href="/notifications">Notifications</a>
       <a class="nav-link" href="#">Help</a>
       <a class="nav-link" href="/logout">Logout</a>
     </nav>
@@ -53,9 +53,10 @@
 
       <div class="top-actions">
         <div class="bell-wrap">
-          <button class="icon-btn" type="button" aria-label="Notifications">
-            <span class="icon">🔔</span>
-            <span class="badge">3</span>
+<a href="/notifications" class="bell-link" aria-label="Notifications" style="text-decoration:none; color:inherit;">
+          <span class="icon">🔔</span>
+          <span class="badge">{{ notification_count if notification_count is not none else 0 }}</span>
+        </a>
           </button>
         </div>
         <div class="profile">

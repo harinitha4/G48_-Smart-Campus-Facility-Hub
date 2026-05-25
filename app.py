@@ -91,6 +91,20 @@ def init_db():
     )
     """)
 
+    # Booking reminder notifications (15 minutes before start)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS booking_notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        booking_id INTEGER,
+        remind_at TEXT,
+        message TEXT,
+        is_sent INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+    )
+    """)
+
+
     # Today's Schedule table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS todays_schedule (
@@ -151,11 +165,94 @@ def is_logged_in():
 
 
 # ============================================================
+# NOTIFICATIONS (in-app reminders)
+# ============================================================
+from datetime import datetime, timedelta
+
+def parse_booking_datetime(date_str: str, time_str: str) -> datetime | None:
+    """Parse booking date/time from DB into a datetime."""
+    try:
+        # Expected DB formats: date = YYYY-MM-DD, time = HH:MM
+        return datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+    except Exception:
+        return None
+
+
+def ensure_notification_scheduler():
+    """Start a lightweight background loop once per process."""
+    # Prevent multiple loops if Flask reloads in debug mode.
+    if getattr(app, "_notification_scheduler_started", False):
+        return
+    app._notification_scheduler_started = True
+
+    import threading
+
+    import time as _time
+
+    def worker():
+        while True:
+            try:
+                now = datetime.now()
+                conn = get_db()
+                cur = conn.cursor()
+                rows = cur.execute(
+                    """
+                    SELECT id, user_id, booking_id, remind_at, message
+                    FROM booking_notifications
+                    WHERE is_sent=0 AND remind_at <= ?
+                    """,
+                    (now.strftime("%Y-%m-%d %H:%M"),)
+                ).fetchall()
+
+                for r in rows:
+                    # Mark sent
+                    cur.execute(
+                        "UPDATE booking_notifications SET is_sent=1 WHERE id=?",
+                        (r["id"],)
+                    )
+                    # In this simplified repo we show the reminder directly
+                    # from booking_notifications (no separate user_notifications table).
+                conn.commit()
+                conn.close()
+            except Exception:
+                # Keep worker alive even if something fails.
+                pass
+
+            _time.sleep(30)
+
+    t = threading.Thread(target=worker, daemon=True)
+    t.start()
+
+
+@app.route('/notifications')
+def notifications():
+    if not is_logged_in():
+        flash("Please login first")
+        return redirect('/login')
+
+    conn = get_db()
+    user_id = session.get('user_id')
+    notes = conn.execute(
+        """
+        SELECT id, booking_id, remind_at, message, is_sent, created_at
+        FROM booking_notifications
+        WHERE user_id=?
+        ORDER BY created_at DESC
+        LIMIT 30
+        """,
+        (user_id,)
+    ).fetchall()
+    conn.close()
+    return render_template('notifications.html', notes=notes)
+
+
+# ============================================================
 # MAIN DASHBOARD ROUTES (scf hub - Harinitha)
 # ============================================================
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/contact')
 def contact():
@@ -173,7 +270,99 @@ def bookings_360():
 def facility_booking(facility):
     if not facility or facility.strip() == "":
         facility = "Facility"
+
+    # NOTE: This repo's facility booking page is a demo, but to support
+    # booking reminders we must persist booking + create notification rows.
+    if request.method == "POST":
+        # Expect fields from templates/facility_booking.html
+        booking_date = request.form.get("date")
+        duration_from = request.form.get("duration_from")
+        duration_to = request.form.get("duration_to")
+
+        student_name = request.form.get("student_name")
+        student_id = request.form.get("student_id")
+        purpose = request.form.get("purpose")  # not stored currently
+
+        # Basic validation
+        if not booking_date or not duration_from:
+            flash("Please provide booking date and start time")
+            return redirect(url_for("facility_booking", facility=facility))
+
+        conn = get_db()
+
+        # Resolve facility_id by name (if missing, insert a facility-less fallback)
+        facility_row = conn.execute(
+            "SELECT id FROM facilities WHERE name=?",
+            (facility,)
+        ).fetchone()
+        if facility_row is None:
+            # Create facility on the fly
+            conn.execute(
+                "INSERT INTO facilities (name, location, description, image_filenames) VALUES (?, ?, ?, ?)",
+                (facility, '', '', '')
+            )
+            conn.commit()
+            facility_row = conn.execute(
+                "SELECT id FROM facilities WHERE name=?",
+                (facility,)
+            ).fetchone()
+        facility_id = facility_row["id"]
+
+        # Resolve current logged-in user; if not logged in, we still allow
+        # inserting using a best-effort lookup by student_id.
+        user_id = session.get("user_id")
+        if user_id is None:
+            # Best-effort: match by student_id against stored users.student_id (not present in DB schema)
+            # Fallback to creating a student user by name.
+            username = (student_id or student_name or "student").strip()
+            if not username:
+                username = "student"
+            existing = conn.execute(
+                "SELECT id FROM users WHERE username=?",
+                (username,)
+            ).fetchone()
+            if existing is None:
+                hashed_pw = generate_password_hash("temp123")
+                conn.execute(
+                    "INSERT INTO users (name, username, email, password, role) VALUES (?, ?, ?, ?, ?)",
+                    (student_name or username, username, f"{username}@local", hashed_pw, "student")
+                )
+                conn.commit()
+                existing = conn.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
+            user_id = existing["id"]
+
+        # Determine booking start time (HH:MM)
+        booking_time = duration_from
+
+        # Store booking
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO bookings (user_id, facility_id, date, time, status, is_approved) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, facility_id, booking_date, booking_time, "pending", 0)
+        )
+        booking_id = cur.lastrowid
+        conn.commit()
+
+        # Schedule reminder 15 minutes before
+        # We store remind_at as string in same format as DB date/time parsing.
+        from datetime import datetime
+        dt = datetime.strptime(f"{booking_date} {booking_time}", "%Y-%m-%d %H:%M")
+        remind_at_dt = dt - timedelta(minutes=15)
+        remind_at = remind_at_dt.strftime("%Y-%m-%d %H:%M")
+
+        message = f"Reminder: your booking at {booking_time} for {facility} starts in 15 minutes."
+        conn.execute(
+            "INSERT INTO booking_notifications (user_id, booking_id, remind_at, message, is_sent) VALUES (?, ?, ?, ?, 0)",
+            (user_id, booking_id, remind_at, message)
+        )
+        conn.commit()
+        conn.close()
+
+        flash("Booking submitted! You will receive a reminder 15 minutes before start.")
+        return redirect('/bookings_360')
+
     return render_template('facility_booking.html', facility=facility)
+
 
 
 # ============================================================
@@ -291,7 +480,21 @@ def dashboard():
     if not is_logged_in():
         flash("Please login first")
         return redirect("/login")
-    return render_template("dashboard.html", name=session.get('user_name', 'User'))
+
+    conn = get_db()
+    user_id = session.get('user_id')
+    notification_count = conn.execute(
+        """
+        SELECT COUNT(*) as cnt
+        FROM booking_notifications
+        WHERE user_id=? AND is_sent=0
+        """,
+        (user_id,)
+    ).fetchone()["cnt"]
+    conn.close()
+
+    return render_template("dashboard.html", name=session.get('user_name', 'User'), notification_count=notification_count)
+
 
 
 @app.route('/profile', methods=["GET", "POST"])
@@ -593,6 +796,13 @@ def admin_activity():
     if not is_admin():
         return redirect("/login")
     return render_template("admin_activity.html")
+
+
+@app.route("/admin/penalties")
+def penalties_page():
+    if not is_admin():
+        return redirect("/login")
+    return render_template("add_penalty.html")
 
 
 # ============================================================

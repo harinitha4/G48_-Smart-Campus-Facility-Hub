@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body { background: #061018; color: white; font-family: Poppins, sans-serif; }
+    .wrap { max-width: 980px; margin: 60px auto; padding: 0 16px; }
+    h1 { margin: 0 0 18px; font-size: 2.3rem; }
+    .card { background: rgba(0,0,0,0.25); border: 1px solid rgba(0,229,255,0.22); border-radius: 18px; padding: 18px; }
+    .note { padding: 14px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+    .note-title { font-weight: 800; margin-bottom: 6px; }
+    .meta { color: rgba(255,255,255,0.7); font-size: 0.92rem; }
+    .empty { color: rgba(255,255,255,0.7); padding: 18px 0; }
+    .top-actions { display:flex; gap:12px; margin-bottom: 14px; align-items:center; }
+    a.btn { text-decoration:none; display:inline-block; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(0,229,255,0.25); color: #9cdcfe; background: rgba(0,229,255,0.08); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top-actions">
+      <a class="btn" href="/dashboard">← Back</a>
+      <div style="margin-left:auto;"><span class="meta">Reminders: 15 minutes before booking</span></div>
+    </div>
+
+    <h1>Notifications</h1>
+
+    <div class="card">
+      {% if notes and notes|length > 0 %}
+        {% for n in notes %}
+          <div class="note">
+            <div class="note-title">🔔 Booking reminder</div>
+            <div>{{ n['message'] if n['message'] else 'You have an upcoming booking.' }}</div>
+            <div class="meta" style="margin-top:8px;">
+              Booking ID: {{ n['booking_id'] }} • Scheduled: {{ n['remind_at'] }} • Sent: {{ 'Yes' if n['is_sent'] else 'No' }}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty">No notifications yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
+
