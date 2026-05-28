@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facility Booking Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard_theme.css') }}">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+
+      <div class="brand">
+        <div class="brand-mark">🏫</div>
+        <div class="brand-text">
+          <div class="brand-name">Smart Campus</div>
+          <div class="brand-sub">Facility Hub</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-link active" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/bookings">My Bookings</a>
+
+      <a class="nav-link" href="/profile">My Profile</a>
+
+      <a class="nav-link" href="#">Notifications</a>
+      <a class="nav-link" href="#">Help</a>
+      <a class="nav-link" href="/logout">Logout</a>
+    </nav>
+
+
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="welcome">
+        <div class="welcome-title">Welcome back, <span id="welcome-name">{{ name }} </span>👋</div>
+        <div class="welcome-sub">Plan ahead and reserve facilities in minutes.</div>
+      </div>
+
+      <div class="top-actions">
+        <div class="profile">
+          <button class="profile-btn" type="button">
+            <span class="avatar">{{ (name[0] if name else 'U')|upper }}</span>
+            <span class="profile-caret">▾</span>
+          </button>
+          <div class="profile-menu" role="menu">
+            <a href="/profile" role="menuitem">My Profile</a>
+            <a href="#" role="menuitem">Settings</a>
+
+            <a href="/logout" role="menuitem">Logout</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <div class="search">
+        <span class="search-icon" aria-hidden="true">🔎</span>
+        <input id="facility-search" type="text" placeholder="Search facilities..." />
+      </div>
+    </section>
+
+    <!-- Rules & Regulations -->
+    <section class="rules-section">
+      <div class="rules-card">
+        <div class="rules-head">
+          <div class="rules-title">Facilities Rules & Regulations</div>
+          <div class="rules-sub">Please read before booking</div>
+        </div>
+
+        <div class="rules-list">
+          <div class="rule-item"><span class="rule-bullet">1</span> All bookings are for <b>2 hours</b> per user.</div>
+          <div class="rule-item"><span class="rule-bullet">2</span> All users must wear <b>suitable clothing</b> for each facility.</div>
+          <div class="rule-item"><span class="rule-bullet">3</span> No <b>last-minute cancellations</b>.</div>
+          <div class="rule-item"><span class="rule-bullet">4</span> If you cancel last-minute, you will get a penalty: <b>no other bookings for the next 1 week</b>.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="facilities-grid" id="facilities-grid"></div>
+    </section>
+  </main>
+
+
+  <!-- Particles background (visual only; no layout changes) -->
+  <div id="particles-js" aria-hidden="true"></div>
+
+  <!-- particles.js library + init -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    if (window.particlesJS) {
+      particlesJS("particles-js", {
+        particles: {
+        number: { value: 80 },
+        color: { value: "#27f5ff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5 },
+        size: { value: 3 },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#27f5ff",
+          opacity: 0.4,
+          width: 1
+        },
+        move: { enable: true, speed: 2 }
+      },
+      interactivity: {
+        events: {
+          onhover: { enable: true, mode: "grab" }
+        }
+      }
+    });
+    }
+  </script>
+
+  <script>
+    // Facility dataset used for both the cards and the modal details.
+
+    // In a real app, this would likely come from the backend.
+
+    const mockFacilities = [
+      {
+        id: 1,
+        title: 'Library Discussion Rooms',
+        capacity: 8,
+        category: 'academic',
+        status: 'Available',
+        availability_status: 'Available',
+        image: '/static/facilities/library.jpg',
+        description: 'Quiet, bookable rooms designed for group discussion and presentations.',
+        opening_hours: 'Mon–Fri: 9:00 AM – 8:00 PM\nSat: 10:00 AM – 4:00 PM\nSun: Closed',
+        rules: [
+          'Keep voices low to avoid disturbing others.',
+          'No food or drinks inside the rooms.',
+          'Return equipment to the storage area after use.'
+        ],
+        equipment_provided: [
+          'Projector',
+          'Whiteboard',
+          'TV display',
+          'Markers/erasers'
+        ],
+      },
+      {
+        id: 2,
+        title: 'Basketball Courts',
+        capacity: 10,
+        category: 'sports',
+        status: 'Limited',
+        availability_status: 'Limited',
+        image: '/static/facilities/basketball.jpg',
+        description: 'Full-court basketball access with scheduled time slots for reservations.',
+        opening_hours: 'Daily: 6:00 AM – 10:00 PM',
+        rules: [
+          'Wear appropriate sports shoes.',
+          'No glass bottles on the court.',
+          'Respect booking time—start/end on schedule.'
+        ],
+        equipment_provided: [
+          'Basketballs (on request)',
+          'First-aid kit'
+        ]
+      },
+      {
+        id: 3,
+        title: 'Gym',
+        capacity: 25,
+        category: 'others',
+        status: 'Available',
+        availability_status: 'Available',
+        image: '/static/facilities/gym.jpg',
+        description: 'Modern training area with cardio and strength equipment for all fitness levels.',
+        opening_hours: 'Mon–Sat: 7:00 AM – 9:00 PM\nSun: 9:00 AM – 5:00 PM',
+        rules: [
+          'Wipe down equipment after use.',
+          'No running in the free-weight area.',
+          'Use lockers for personal items.'
+        ],
+        equipment_provided: [
+          'Treadmills,',
+          'Dumbbells,',
+          'Resistance machines,',
+          'Stretching mats'
+        ]
+      },
+      {
+        id: 4,
+        title: 'Study Lounges',
+
+        capacity: 6,
+        category: 'academic',
+        status: 'Available',
+        availability_status: 'Available',
+        image: '/static/facilities/study.jpg',
+        description: 'Comfortable lounge seating for focused individual study and quiet group sessions.',
+        opening_hours: 'Mon–Fri: 8:00 AM – 6:00 PM\nSat: 10:00 AM – 3:00 PM\nSun: Closed',
+        rules: [
+          'Maintain a quiet environment.',
+          'Headphones required for audio.',
+          'Leave the space tidy after your session.'
+        ],
+        equipment_provided: [
+          'Charging outlets',
+          'Writing desks',
+          'Whiteboard (select rooms)'
+        ],
+      },
+      {
+        id: 5,
+        title: 'Tennis Courts',
+        capacity: 4,
+        category: 'sports',
+        status: 'Limited',
+        availability_status: 'Limited',
+        image: '/static/facilities/tennis courts.jpeg',
+        description: 'Outdoor tennis courts available in limited time slots. Perfect for practice sessions.',
+        opening_hours: 'Daily: 7:00 AM – 9:00 PM',
+        rules: [
+          'Players must bring their own rackets.',
+          'Ball usage is limited—ask staff when needed.',
+          'Respect lane/court changes during peak times.'
+        ],
+        equipment_provided: [
+          'Tennis balls (limited)',
+          'Court lines/markers'
+        ]
+      },
+    ];
+
+
+
+    const statusClass = (s) => s === 'Available' ? 'status-available' : 'status-limited';
+    const categoryTagClass = (c) => c === 'academic' ? 'tag-academic' : c === 'sports' ? 'tag-sports' : 'tag-others';
+    const categoryLabel = (c) => c === 'academic' ? 'Academic' : c === 'sports' ? 'Sports' : 'Others';
+
+    const grid = document.getElementById('facilities-grid');
+    const searchInput = document.getElementById('facility-search');
+    let activePill = 'all';
+
+    function render(items) {
+      grid.innerHTML = items.map(f => {
+        return `
+          <article class="facility-card" data-category="${f.category}" onclick="window.location='/facility/${f.id}'" style="cursor:pointer;">
+            <div class="thumb" style="background-image:url(${encodeURI(f.image || '')}); background-size:cover; background-position:center;">
+              <div class="thumb-overlay">
+                <span class="status-badge ${statusClass(f.status)}">${f.status}</span>
+              </div>
+            </div>
+
+
+            <div class="card-body">
+              <span class="category-tag ${categoryTagClass(f.category)}">${categoryLabel(f.category)}</span>
+              <h3 class="facility-title">${f.title}</h3>
+
+              <div class="meta">
+                <span class="meta-item" title="Capacity">🧑‍🤝‍🧑 ${f.capacity}</span>
+              </div>
+
+              <div class="card-actions" onmousedown="event.stopPropagation();" onclick="event.stopPropagation();">
+
+                <form method="POST" action="/booking/create" class="book-now-form" onsubmit="event.stopPropagation()">
+                  <input type="hidden" name="facility_title" value="${f.title}" />
+                  <button class="btn btn-primary" type="submit">Book Now</button>
+                </form>
+
+
+              </div>
+            </div>
+          </article>
+        `;
+
+      }).join('');
+    }
+
+    function applyFilters() {
+      const q = (searchInput.value || '').trim().toLowerCase();
+
+      const filtered = mockFacilities.filter(f => {
+        const matchesQuery = !q ? true : f.title.toLowerCase().includes(q);
+        return matchesQuery;
+      });
+
+      render(filtered);
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+
+
+    // Render initial set
+    render(mockFacilities);
+
+    // Profile dropdown
+    const profileBtn = document.querySelector('.profile-btn');
+    const menu = document.querySelector('.profile-menu');
+    if (profileBtn && menu) {
+      profileBtn.addEventListener('click', () => {
+        menu.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target)) menu.classList.remove('open');
+      });
+    }
+
+
+
+  </script>
+</body>
+</html>
+
+
+
