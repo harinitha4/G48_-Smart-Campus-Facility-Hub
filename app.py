@@ -806,7 +806,53 @@ def penalties_page():
 
 
 # ============================================================
+# SEND NOTICES (manual trigger)
+# ============================================================
+@app.route('/send-notice', methods=['GET', 'POST'])
+def send_notice():
+    if not is_logged_in():
+        flash("Please login first")
+        return redirect('/login')
+
+    # In this project, reminders are per-user booking_notifications.
+    # This endpoint processes all due reminders for all users.
+    if request.method == 'POST':
+        from datetime import datetime
+        try:
+            now = datetime.now().strftime("%Y-%m-%d %H:%M")
+            conn = get_db()
+            cur = conn.cursor()
+            rows = cur.execute(
+                """
+                SELECT id, user_id, booking_id, remind_at, message
+                FROM booking_notifications
+                WHERE is_sent=0 AND remind_at <= ?
+                """,
+                (now,)
+            ).fetchall()
+
+            for r in rows:
+                cur.execute(
+                    "UPDATE booking_notifications SET is_sent=1 WHERE id=?",
+                    (r["id"],)
+                )
+            conn.commit()
+            processed = len(rows)
+            conn.close()
+
+            flash(f"Processed {processed} due reminder(s).")
+        except Exception:
+            flash("Failed to send notices.")
+
+        # Stay on the page
+        return redirect('/send-notice')
+
+    return render_template('sendnotice.html')
+
+
+# ============================================================
 # RUN
 # ============================================================
 if __name__ == "__main__":
     app.run(debug=True)
+

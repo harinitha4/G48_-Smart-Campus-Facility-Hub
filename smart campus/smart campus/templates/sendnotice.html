@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Send Notices</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body { background: #061018; color: white; font-family: Poppins, sans-serif; }
+    .wrap { max-width: 980px; margin: 60px auto; padding: 0 16px; }
+    h1 { margin: 0 0 18px; font-size: 2.3rem; }
+    .card { background: rgba(0,0,0,0.25); border: 1px solid rgba(0,229,255,0.22); border-radius: 18px; padding: 18px; }
+    .meta { color: rgba(255,255,255,0.7); font-size: 0.95rem; }
+    a.btn { text-decoration:none; display:inline-block; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(0,229,255,0.25); color: #9cdcfe; background: rgba(0,229,255,0.08); font-weight: 700; }
+    button.btn { cursor:pointer; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.25); color:#9cdcfe; font-weight:700; padding:10px 14px; border-radius:12px; }
+    .row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .flash { margin: 10px 0 0; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); }
+    form { margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="row">
+      <a class="btn" href="/notifications">← Back</a>
+      <div><span class="meta">Manually trigger due reminders</span></div>
+    </div>
+
+    <h1>Send Notices</h1>
+
+    <div class="card">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash">{{ messages[0] }}</div>
+        {% endif %}
+      {% endwith %}
+
+      <p class="meta">
+        This action will process pending booking reminders (15-min reminders) that are due and mark them as sent.
+      </p>
+
+      <form method="POST" action="{{ url_for('send_notice') }}">
+        <button class="btn" type="submit">Send Due Reminders Now</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
+
