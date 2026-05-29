@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:0;min-height:100vh;background:radial-gradient(circle at 15% 15%,rgba(0,229,255,0.20),transparent 38%),radial-gradient(circle at 85% 22%,rgba(64,224,208,0.14),transparent 42%),radial-gradient(circle at 45% 85%,rgba(142,45,226,0.18),transparent 48%),linear-gradient(135deg,#0b1220,#0f2027,#061018);color:white;display:flex;align-items:center;justify-content:center}
+        .container{max-width:420px;width:100%;margin:40px auto;background:rgba(255,255,255,0.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:32px 28px;border-radius:18px;border:1px solid rgba(0,229,255,0.18);box-shadow:0 8px 40px rgba(0,0,0,0.45)}
+        h2{margin-top:0;font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#00E5FF,#40E0D0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        label{display:block;margin:14px 0 6px;color:rgba(255,255,255,0.85);font-size:0.9rem;font-weight:600}
+        input{width:100%;padding:10px 14px;border:1px solid rgba(0,229,255,0.25);border-radius:10px;background:rgba(255,255,255,0.08);color:white;font-size:0.95rem;outline:none;box-sizing:border-box;transition:border-color 0.3s}
+        input::placeholder{color:rgba(255,255,255,0.4)}
+        input:focus{border-color:rgba(0,229,255,0.6);background:rgba(255,255,255,0.12)}
+        .btn{margin-top:20px;width:100%;padding:12px;background:linear-gradient(135deg,#4a00e0,#8e2de2);color:#fff;border:0;border-radius:12px;cursor:pointer;font-size:1rem;font-weight:700;letter-spacing:0.5px;box-shadow:0 4px 18px rgba(142,45,226,0.4);transition:opacity 0.2s}
+        .btn:hover{opacity:0.88}
+        .links{display:flex;justify-content:space-between;margin-top:16px}
+        .msg{color:#f87171;margin:0 0 10px}
+        .flash{background:rgba(220,38,38,0.15);border:1px solid rgba(248,113,113,0.4);color:#f87171;padding:10px 14px;border-radius:10px;margin-bottom:14px}
+        a{color:#00E5FF;text-decoration:none}
+        a:hover{color:#40E0D0}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="flash">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" placeholder="admin or student" autocomplete="username">
+
+            <label for="email">OR Email</label>
+            <input id="email" name="email" type="email" placeholder="name@college.edu" autocomplete="email">
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password">
+
+            <button class="btn" type="submit">Login</button>
+        </form>
+
+        <div class="links">
+            <a href="/register">Register</a>
+            <a href="/">Back</a>
+        </div>
+    </div>
+</body>
+</html>
+

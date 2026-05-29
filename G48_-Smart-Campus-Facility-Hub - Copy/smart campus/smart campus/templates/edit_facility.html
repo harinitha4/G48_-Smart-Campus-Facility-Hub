@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* ── Page header ── */
+  .af-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:28px; }
+  .af-header h1 { font-size:26px; font-weight:800; color:#f0fafa; margin:0 0 4px; }
+  .af-header p  { color:#7ab8c0; font-size:13px; margin:0; }
+  .back-btn {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:9px 18px; border-radius:10px;
+    border:1px solid rgba(156,220,254,0.3);
+    background:rgba(156,220,254,0.07);
+    color:#9cdcfe; text-decoration:none; font-weight:600; font-size:13px;
+    transition: background .18s;
+  }
+  .back-btn:hover { background:rgba(156,220,254,0.15); }
+
+  /* ── Layout ── */
+  .af-layout { display:grid; grid-template-columns:1fr 300px; gap:22px; align-items:start; }
+  @media(max-width:1000px){ .af-layout{ grid-template-columns:1fr; } }
+
+  /* ── Panel ── */
+  .panel {
+    background:#0d4a56;
+    border:1px solid rgba(0,196,204,0.15);
+    border-radius:16px;
+    padding:24px 26px;
+  }
+  .panel-title { font-size:15px; font-weight:700; color:#f0fafa; margin:0 0 20px; display:flex; align-items:center; gap:8px; }
+
+  /* ── Form fields ── */
+  .field { margin-bottom:20px; }
+  .field label {
+    display:block; margin-bottom:7px;
+    font-size:12px; font-weight:700; color:#7ab8c0;
+    text-transform:uppercase; letter-spacing:.05em;
+  }
+  .field input[type="text"],
+  .field textarea {
+    width:100%; box-sizing:border-box;
+    padding:11px 14px;
+    border:1px solid rgba(0,196,204,0.25);
+    border-radius:10px;
+    background:rgba(255,255,255,0.05);
+    color:#f0fafa; font-size:14px; font-family:inherit;
+    transition: border-color .18s, background .18s;
+  }
+  .field input[type="text"]:focus,
+  .field textarea:focus {
+    outline:none;
+    border-color:rgba(0,196,204,0.65);
+    background:rgba(0,196,204,0.06);
+  }
+  .field textarea { resize:vertical; min-height:110px; line-height:1.6; }
+
+  /* ── File upload ── */
+  .file-drop {
+    border:2px dashed rgba(0,196,204,0.3);
+    border-radius:12px;
+    padding:28px 16px;
+    text-align:center;
+    cursor:pointer;
+    transition: border-color .18s, background .18s;
+    position:relative;
+  }
+  .file-drop:hover { border-color:rgba(0,196,204,0.6); background:rgba(0,196,204,0.04); }
+  .file-drop input[type="file"] {
+    position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+  }
+  .file-drop .upload-icon { font-size:2rem; margin-bottom:8px; }
+  .file-drop .upload-text { font-size:13px; color:#7ab8c0; }
+  .file-drop .upload-hint { font-size:11px; color:rgba(122,184,192,0.6); margin-top:4px; }
+
+  /* ── Submit button ── */
+  .submit-btn {
+    width:100% !important; padding:13px !important; margin-top:6px !important;
+    background:linear-gradient(135deg,rgba(0,196,204,0.3),rgba(0,196,204,0.18)) !important;
+    border:1px solid rgba(0,196,204,0.55) !important;
+    color:#00c4cc !important; border-radius:12px !important;
+    font-weight:800; font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    transition: background .2s;
+  }
+  .submit-btn:hover { background:rgba(0,196,204,0.35) !important; }
+
+  /* ── Tips panel ── */
+  .tip-item {
+    display:flex; gap:12px; align-items:flex-start;
+    padding:12px 0;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    font-size:13px; color:#94b4b8;
+    line-height:1.5;
+  }
+  .tip-item:last-child { border-bottom:none; }
+  .tip-icon { font-size:1.2rem; flex-shrink:0; margin-top:1px; }
+  .tip-label { font-weight:700; color:#e2e8f0; display:block; margin-bottom:2px; font-size:13px; }
+
+  /* ── Preview area ── */
+  #preview-wrap { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  #preview-wrap img {
+    width:70px; height:70px; object-fit:cover;
+    border-radius:8px; border:1px solid rgba(0,196,204,0.3);
+  }
+  #file-count { font-size:12px; color:#7ab8c0; margin-top:6px; }
+</style>
+
+<!-- Page header -->
+<div class="af-header">
+  <div>
+    <h1>✏️ Edit Facility</h1>
+    <p>Update the details for <strong style="color:#00c4cc;">{{ facility.name }}</strong>.</p>
+  </div>
+  <a class="back-btn" href="/admin/facilities">← Back to Facilities</a>
+</div>
+
+<div class="af-layout">
+
+  <!-- Main form -->
+  <div class="panel">
+    <div class="panel-title">📋 Facility Details</div>
+
+    <form method="POST" enctype="multipart/form-data">
+
+      <div class="field">
+        <label>Facility Name <span style="color:#e57373;">*</span></label>
+        <input type="text" name="name" value="{{ facility.name }}" required />
+      </div>
+
+      <div class="field">
+        <label>Location <span style="color:#e57373;">*</span></label>
+        <input type="text" name="location" value="{{ facility.location }}" required />
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div class="field" style="margin-bottom:0;">
+          <label>Category <span style="color:#e57373;">*</span></label>
+          <select name="category" style="width:100%; box-sizing:border-box; padding:11px 14px; border:1px solid rgba(0,196,204,0.25); border-radius:10px; background:#0d4a56; color:#f0fafa; font-size:14px; font-family:inherit;">
+            <option value="academic" style="background:#0d4a56; color:#f0fafa;" {% if facility.category == 'academic' %}selected{% endif %}>Academic</option>
+            <option value="sports" style="background:#0d4a56; color:#f0fafa;" {% if facility.category == 'sports' %}selected{% endif %}>Sports</option>
+            <option value="others" style="background:#0d4a56; color:#f0fafa;" {% if not facility.category or facility.category == 'others' %}selected{% endif %}>Others</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Capacity</label>
+          <input type="number" name="capacity" min="0" value="{{ facility.capacity or '' }}" placeholder="e.g. 20" style="width:100%; box-sizing:border-box; padding:11px 14px; border:1px solid rgba(0,196,204,0.25); border-radius:10px; background:rgba(255,255,255,0.05); color:#f0fafa; font-size:14px; font-family:inherit;" />
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:20px;">
+        <label>Description</label>
+        <textarea name="description">{{ facility.description }}</textarea>
+      </div>
+
+      <div class="field">
+        <label>Add More Pictures <span style="color:#7ab8c0;">(optional)</span></label>
+        <div class="file-drop" id="fileDrop">
+          <input type="file" name="facility_images" multiple accept="image/png,image/jpeg,image/jpg,image/webp" id="fileInput" />
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">Click or drag new images here</div>
+          <div class="upload-hint">New uploads will be added alongside existing photos</div>
+        </div>
+        <div id="preview-wrap"></div>
+        <div id="file-count"></div>
+      </div>
+
+      <div class="field">
+        <label>360° View <span style="color:#7ab8c0;">(optional)</span></label>
+        <div style="display:flex; margin-bottom:14px; border:1px solid rgba(0,196,204,0.2); border-radius:8px; overflow:hidden; width:fit-content;">
+          <button type="button" id="tab360-upload" onclick="switch360('upload')"
+            style="padding:8px 20px; background:rgba(0,196,204,0.18); color:#00c4cc; border:none; cursor:pointer; font-size:13px; font-weight:700;">&#128193; Upload Image</button>
+          <button type="button" id="tab360-link" onclick="switch360('link')"
+            style="padding:8px 20px; background:transparent; color:#7ab8c0; border:none; cursor:pointer; font-size:13px; font-weight:600;">&#128279; Embed Link</button>
+        </div>
+        <div id="panel360-upload">
+          <div class="file-drop" id="fileDrop360">
+            <input type="file" name="view_360_file" accept="image/png,image/jpeg,image/jpg,image/webp" id="fileInput360" />
+            <div class="upload-icon">🌐</div>
+            <div class="upload-text">{{ 'Upload a replacement 360° image' if facility.view_360_filename and not facility.view_360_filename.startswith('http') else 'Click or drag a panoramic / 360° image here' }}</div>
+            <div class="upload-hint">Students can view this from the dashboard</div>
+          </div>
+          <div id="preview-360" style="margin-top:10px;">
+            {% if facility.view_360_filename and not facility.view_360_filename.startswith('http') %}
+            <img src="{{ url_for('static', filename='facility_uploads/' + facility.view_360_filename) }}"
+                 style="width:100%; max-height:140px; object-fit:cover; border-radius:10px; border:1px solid rgba(0,196,204,0.35);" />
+            {% endif %}
+          </div>
+        </div>
+        <div id="panel360-link" style="display:none;">
+          <input type="text" name="view_360_url" id="input360url"
+                 placeholder="e.g. https://teliportme.com/view/2575153"
+                 value="{{ facility.view_360_filename if facility.view_360_filename and facility.view_360_filename.startswith('http') else '' }}"
+                 style="width:100%; box-sizing:border-box; padding:11px 14px; border:1px solid rgba(0,196,204,0.25); border-radius:10px; background:rgba(255,255,255,0.05); color:#f0fafa; font-size:14px; font-family:inherit;" />
+          <div style="font-size:11px; color:#7ab8c0; margin-top:6px;">Paste a teliportme, Matterport, or any embeddable 360° link.</div>
+          <div id="preview-link-360" style="margin-top:12px;">
+            {% if facility.view_360_filename and facility.view_360_filename.startswith('http') %}
+            <iframe src="{{ facility.view_360_filename }}" style="width:100%;height:260px;border-radius:10px;border:1px solid rgba(0,196,204,0.3);" allowfullscreen allow="xr-spatial-tracking; gyroscope; accelerometer"></iframe>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        💾 Update Facility
+      </button>
+    </form>
+  </div>
+
+  <!-- Tips panel -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">💡 Tips</div>
+
+      <div class="tip-item">
+        <span class="tip-icon">📝</span>
+        <div>
+          <span class="tip-label">Clear Name</span>
+          Use the official facility name so students can find it easily.
+        </div>
+      </div>
+      <div class="tip-item">
+        <span class="tip-icon">📍</span>
+        <div>
+          <span class="tip-label">Precise Location</span>
+          Include block, floor, and room number where possible.
+        </div>
+      </div>
+      <div class="tip-item">
+        <span class="tip-icon">📋</span>
+        <div>
+          <span class="tip-label">Good Description</span>
+          Mention capacity, available equipment, and booking rules.
+        </div>
+      </div>
+      <div class="tip-item">
+        <span class="tip-icon">🖼</span>
+        <div>
+          <span class="tip-label">Photos Help</span>
+          Upload at least one clear photo so students know what to expect.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Image preview
+  document.getElementById('fileInput').addEventListener('change', function() {
+    const wrap = document.getElementById('preview-wrap');
+    const count = document.getElementById('file-count');
+    wrap.innerHTML = '';
+    const files = Array.from(this.files);
+    files.forEach(f => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        wrap.appendChild(img);
+      };
+      reader.readAsDataURL(f);
+    });
+    count.textContent = files.length ? `${files.length} file${files.length > 1 ? 's' : ''} selected` : '';
+  });
+
+  // 360° tab toggle
+  function switch360(mode) {
+    const isUpload = mode === 'upload';
+    document.getElementById('panel360-upload').style.display = isUpload ? '' : 'none';
+    document.getElementById('panel360-link').style.display = isUpload ? 'none' : '';
+    document.getElementById('tab360-upload').style.cssText = isUpload
+      ? 'padding:8px 20px; background:rgba(0,196,204,0.18); color:#00c4cc; border:none; cursor:pointer; font-size:13px; font-weight:700;'
+      : 'padding:8px 20px; background:transparent; color:#7ab8c0; border:none; cursor:pointer; font-size:13px; font-weight:600;';
+    document.getElementById('tab360-link').style.cssText = isUpload
+      ? 'padding:8px 20px; background:transparent; color:#7ab8c0; border:none; cursor:pointer; font-size:13px; font-weight:600;'
+      : 'padding:8px 20px; background:rgba(0,196,204,0.18); color:#00c4cc; border:none; cursor:pointer; font-size:13px; font-weight:700;';
+    if (isUpload) document.getElementById('input360url').value = '';
+    else document.getElementById('fileInput360').value = '';
+  }
+
+  // Auto-select correct tab based on saved value
+  (function() {
+    const cur = document.getElementById('input360url').value;
+    if (cur && cur.startsWith('http')) switch360('link');
+  })();
+
+  // 360° image preview (upload mode)
+  document.getElementById('fileInput360').addEventListener('change', function() {
+    const wrap = document.getElementById('preview-360');
+    const existingImg = wrap.querySelector('img[data-new]');
+    if (existingImg) existingImg.remove();
+    const f = this.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.createElement('img');
+      img.setAttribute('data-new', '1');
+      img.src = e.target.result;
+      img.style.cssText = 'width:100%; max-height:160px; object-fit:cover; border-radius:10px; border:1px solid rgba(0,196,204,0.3);';
+      wrap.appendChild(img);
+    };
+    reader.readAsDataURL(f);
+  });
+
+  // 360° live iframe preview (link mode)
+  document.getElementById('input360url').addEventListener('input', function() {
+    const wrap = document.getElementById('preview-link-360');
+    const url = this.value.trim();
+    if (!url || !url.startsWith('http')) { wrap.innerHTML = ''; return; }
+    wrap.innerHTML = `<iframe src="${url}" style="width:100%;height:260px;border-radius:10px;border:1px solid rgba(0,196,204,0.3);" allowfullscreen allow="xr-spatial-tracking; gyroscope; accelerometer"></iframe>`;
+  });
+
+  // Drag-over highlight for both drop zones
+  [document.getElementById('fileDrop'), document.getElementById('fileDrop360')].forEach(drop => {
+    if (!drop) return;
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.style.borderColor = 'rgba(0,196,204,0.8)'; });
+    drop.addEventListener('dragleave', () => { drop.style.borderColor = ''; });
+    drop.addEventListener('drop', () => { drop.style.borderColor = ''; });
+  });
+</script>
+{% endblock %}
+
