@@ -1,279 +1,226 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking - {{ facility }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: radial-gradient(circle at 20% 20%, rgba(0,229,255,0.18), transparent 35%),
-                        radial-gradient(circle at 80% 30%, rgba(64,224,208,0.14), transparent 40%),
-                        radial-gradient(circle at 50% 80%, rgba(74,0,224,0.16), transparent 45%),
-                        linear-gradient(135deg, #0b1220, #0f2027, #061018);
-            min-height: 100vh;
-            color: white;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image:
-                radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.7), transparent 50%),
-                radial-gradient(1px 1px at 80px 120px, rgba(255,255,255,0.5), transparent 50%),
-                radial-gradient(1px 1px at 160px 70px, rgba(255,255,255,0.6), transparent 50%),
-                radial-gradient(1px 1px at 220px 160px, rgba(255,255,255,0.55), transparent 50%),
-                radial-gradient(1px 1px at 320px 90px, rgba(255,255,255,0.65), transparent 50%),
-                radial-gradient(1px 1px at 420px 150px, rgba(255,255,255,0.45), transparent 50%),
-                radial-gradient(1px 1px at 520px 60px, rgba(255,255,255,0.6), transparent 50%);
-            background-size: 600px 220px;
-            opacity: 0.25;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        #particles-js {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-        }
-
-        header.navbar {
-            position: relative;
-            z-index: 2;
-        }
-
-        .page-wrap {
-            position: relative;
-            z-index: 2;
-            padding: 70px 20px 60px;
-            max-width: 980px;
-            margin: 0 auto;
-        }
-
-        .book-title {
-            text-align: center;
-            margin-bottom: 22px;
-        }
-
-        .book-title h1 {
-            font-size: 2.6rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            background: linear-gradient(135deg, #00E5FF, #40E0D0, #8e2de2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: drop-shadow(0 0 18px rgba(64,224,208,0.35));
-            margin: 0;
-        }
-
-        .book-title p {
-            margin-top: 10px;
-            color: rgba(255,255,255,0.8);
-            font-size: 1.02rem;
-        }
-
-        .form-card {
-            background: rgba(0,0,0,0.22);
-            border: 1px solid rgba(0,229,255,0.22);
-            border-radius: 18px;
-            padding: 22px 18px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 0 30px rgba(0,229,255,0.12);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        @media (max-width: 860px) {
-            .grid { grid-template-columns: 1fr; }
-            .page-wrap { padding-top: 60px; }
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .field label {
-            font-weight: 800;
-            font-size: 0.92rem;
-            color: rgba(255,255,255,0.9);
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-        }
-
-        .field input,
-        .field select,
-        .field textarea {
-            width: 100%;
-            padding: 12px 12px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.16);
-            background: rgba(255,255,255,0.06);
-            color: white;
-            outline: none;
-        }
-
-        .field textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .field input:focus,
-        .field select:focus,
-        .field textarea:focus {
-            border-color: rgba(0,229,255,0.5);
-            box-shadow: 0 0 0 3px rgba(0,229,255,0.12);
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-
-        .back-btn {
-            border: none;
-            background: rgba(255,255,255,0.06);
-            color: rgba(255,255,255,0.92);
-            padding: 10px 14px;
-            border-radius: 14px;
-            font-weight: 800;
-            cursor: pointer;
-            border: 1px solid rgba(0,229,255,0.22);
-        }
-
-        .submit-btn {
-            border: none;
-            background: linear-gradient(135deg, #4a00e0, #8e2de2);
-            color: white;
-            padding: 12px 18px;
-            border-radius: 14px;
-            font-weight: 900;
-            cursor: pointer;
-            box-shadow: 0 0 18px rgba(142,45,226,0.35);
-        }
-
-        .fineprint {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book — {{ facility }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
+  <style>
+    .bk-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:28px; }
+    .bk-header h1 { font-size:24px; font-weight:800; color:#f0fafa; margin:0 0 4px; }
+    .bk-header p  { color:#7ab8c0; font-size:13px; margin:0; }
+    .back-btn {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:9px 18px; border-radius:10px;
+      border:1px solid rgba(156,220,254,0.3);
+      background:rgba(156,220,254,0.07);
+      color:#9cdcfe; text-decoration:none; font-weight:600; font-size:13px;
+      width:auto !important; margin-top:0 !important;
+      transition: background .18s;
+    }
+    .back-btn:hover { background:rgba(156,220,254,0.15); }
+    .bk-layout { display:grid; grid-template-columns:1fr 280px; gap:22px; align-items:start; }
+    @media(max-width:960px){ .bk-layout{ grid-template-columns:1fr; } }
+    .panel { background:#0d4a56; border:1px solid rgba(0,196,204,0.15); border-radius:16px; padding:24px 26px; }
+    .panel-title { font-size:15px; font-weight:700; color:#f0fafa; margin:0 0 20px; display:flex; align-items:center; gap:8px; }
+    .field { margin-bottom:18px; }
+    .field label { display:block; margin-bottom:7px; font-size:12px; font-weight:700; color:#7ab8c0; text-transform:uppercase; letter-spacing:.05em; }
+    .field input[type="text"],
+    .field input[type="date"],
+    .field input[type="time"],
+    .field textarea {
+      width:100%; box-sizing:border-box; padding:11px 14px;
+      border:1px solid rgba(0,196,204,0.25); border-radius:10px;
+      background:rgba(255,255,255,0.05); color:#f0fafa; font-size:14px; font-family:inherit;
+      transition: border-color .18s, background .18s;
+    }
+    .field input:focus, .field textarea:focus { outline:none; border-color:rgba(0,196,204,0.65); background:rgba(0,196,204,0.06); }
+    .field textarea { resize:vertical; min-height:90px; line-height:1.6; }
+    .facility-display { width:100%; box-sizing:border-box; padding:11px 14px; border:1px solid rgba(0,196,204,0.2); border-radius:10px; background:rgba(0,196,204,0.06); color:#00c4cc; font-size:14px; font-weight:700; }
+    .time-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .submit-btn {
+      width:100% !important; padding:13px !important; margin-top:6px !important;
+      background:linear-gradient(135deg,rgba(0,196,204,0.3),rgba(0,196,204,0.18)) !important;
+      border:1px solid rgba(0,196,204,0.55) !important; color:#00c4cc !important;
+      border-radius:12px !important; font-weight:800; font-size:15px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; gap:8px; transition: background .2s;
+    }
+    .submit-btn:hover { background:rgba(0,196,204,0.35) !important; }
+    .info-item { display:flex; gap:12px; align-items:flex-start; padding:11px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13px; color:#94b4b8; line-height:1.5; }
+    .info-item:last-child { border-bottom:none; }
+    .info-icon { font-size:1.2rem; flex-shrink:0; margin-top:1px; }
+    .info-label { font-weight:700; color:#e2e8f0; display:block; margin-bottom:2px; font-size:13px; }
+    .flash-success { background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.3); color:#4ade80; padding:12px 16px; border-radius:10px; margin-bottom:18px; font-size:13px; font-weight:600; }
+    .flash-error   { background:rgba(251,146,60,0.12);  border:1px solid rgba(251,146,60,0.3);  color:#fb923c; padding:12px 16px; border-radius:10px; margin-bottom:18px; font-size:13px; font-weight:600; }
+  </style>
 </head>
-<body class="home">
-    <header class="navbar">
-        <div class="logo">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="SCF Hub logo icon">
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <div class="brand-mark">🏫</div>
+        <div class="brand-text">
+          <div class="brand-name">Smart Campus</div>
+          <div class="brand-sub">Facility Hub</div>
         </div>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('index') }}">Home</a></li>
-                <li><a href="{{ url_for('facilities') }}">Facilities</a></li>
-                <li><a href="{{ url_for('bookings_360') }}" class="btn active">Bookings</a></li>
-                <li><a href="{{ url_for('contact') }}">Contact</a></li>
-                <li class="dropdown">
-                    <a href="#" class="btn">Login ▾</a>
-                    <div class="dropdown-content">
-                        <a href="#">Admin</a>
-                        <a href="#">User</a>
-                    </div>
-                </li>
-            </ul>
-        </nav>
+      </div>
+    </div>
+    <nav class="nav">
+      <a class="nav-link active" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/bookings">My Bookings</a>
+      <a class="nav-link" href="/profile">My Profile</a>
+      <a class="nav-link" href="/notifications">Notifications</a>
+      <a class="nav-link" href="/help">Help</a>
+      <a class="nav-link" href="/logout">Logout</a>
+    </nav>
+    <div class="sidebar-cta">
+      <div class="calendar-card">
+        <div class="calendar-head">
+          <span class="calendar-dot"></span>
+          <div>
+            <div class="calendar-title">Book Your Spot</div>
+            <div class="calendar-sub">Next 7 days</div>
+          </div>
+        </div>
+        <div class="calendar-grid" aria-hidden="true"></div>
+        <a href="/dashboard" class="cta-button" style="text-align:center; display:block;">Back to Dashboard</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="welcome">
+        <div class="welcome-title">Book a Facility 📋</div>
+        <div class="welcome-sub">Fill in your details and confirm your reservation.</div>
+      </div>
+      <div class="top-actions">
+        <div class="bell-wrap">
+          <a href="/notifications" class="icon-btn" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">
+            <span class="icon">🔔</span>
+            <span class="badge">{{ notification_count if notification_count is not none else 0 }}</span>
+          </a>
+        </div>
+        <div class="profile">
+          <button class="profile-btn" type="button">
+            <span class="avatar">{{ (user_name[0] if user_name else 'U')|upper }}</span>
+            <span class="profile-caret">▾</span>
+          </button>
+          <div class="profile-menu" role="menu">
+            <a href="/profile" role="menuitem">My Profile</a>
+            <a href="/logout" role="menuitem">Logout</a>
+          </div>
+        </div>
+      </div>
     </header>
 
-    <div id="particles-js"></div>
+    <section class="content" style="padding:0 0 40px;">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+          <div class="{{ 'flash-success' if cat == 'success' else 'flash-error' }}">{{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
 
-    <main class="page-wrap">
-        <div class="book-title">
-            <h1>Facility Booking</h1>
-            <p>Selected facility: <strong>{{ facility }}</strong></p>
+      <div class="bk-header">
+        <div>
+          <h1>📅 Book — {{ facility }}</h1>
+          <p>Complete the form below to submit your booking request.</p>
+        </div>
+        <a class="back-btn" href="/dashboard">← Back to Dashboard</a>
+      </div>
+
+      <div class="bk-layout">
+        <div class="panel">
+          <div class="panel-title">📋 Booking Details</div>
+          <form method="POST" action="{{ url_for('facility_booking', facility_id=facility_id) }}">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="field" style="margin-bottom:0;">
+                <label>Your Name <span style="color:#e57373;">*</span></label>
+                <input type="text" name="student_name" value="{{ user_name }}" placeholder="Full name" required />
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <label>Student ID <span style="color:#e57373;">*</span></label>
+                <input type="text" name="student_id" placeholder="e.g. S12345" required />
+              </div>
+            </div>
+
+            <div class="field" style="margin-top:18px;">
+              <label>Facility</label>
+              <div class="facility-display">🏛 {{ facility }}</div>
+            </div>
+
+            <div class="field">
+              <label>Date <span style="color:#e57373;">*</span></label>
+              <input type="date" name="date" required />
+            </div>
+
+            <div class="field">
+              <label>Duration <span style="color:#e57373;">*</span></label>
+              <div class="time-row">
+                <div>
+                  <div style="font-size:11px; color:#7ab8c0; margin-bottom:5px; font-weight:600;">FROM</div>
+                  <input type="time" name="duration_from" required />
+                </div>
+                <div>
+                  <div style="font-size:11px; color:#7ab8c0; margin-bottom:5px; font-weight:600;">TO</div>
+                  <input type="time" name="duration_to" />
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Purpose</label>
+              <textarea name="purpose" placeholder="e.g. Group project discussion, study session..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">✅ Submit Booking</button>
+          </form>
         </div>
 
-        <div class="form-card">
-            <form method="post" action="{{ url_for('facility_booking', facility=facility) }}">
-                <div class="grid">
-                    <div class="field">
-                        <label for="student_name">Student Name</label>
-                        <input id="student_name" name="student_name" type="text" placeholder="Enter your name" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="student_id">Student ID</label>
-                        <input id="student_id" name="student_id" type="text" placeholder="Enter your student ID" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="facility">Facility</label>
-                        <select id="facility" name="facility" required>
-                            <option value="{{ facility }}" selected>{{ facility }}</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="date">Date</label>
-                        <input id="date" name="date" type="date" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="duration">Duration (From - To)</label>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                            <input id="duration_from" name="duration_from" type="time" required>
-                            <input id="duration_to" name="duration_to" type="time" required>
-                        </div>
-                    </div>
-
-
-                    <div class="field">
-                        <label for="purpose">Purpose</label>
-                        <input id="purpose" name="purpose" type="text" placeholder="e.g., Project discussion" required>
-                    </div>
-                </div>
-
-
-
-
-
-                <div class="actions">
-                    <a class="back-btn" href="{{ url_for('bookings_360') }}">Back to 360 View</a>
-                    <button class="submit-btn" type="submit">Submit Booking</button>
-                    <div class="fineprint">Demo form: currently no backend storage is implemented.</div>
-                </div>
-            </form>
+        <div>
+          <div class="panel">
+            <div class="panel-title">ℹ️ What happens next?</div>
+            <div class="info-item">
+              <span class="info-icon">📨</span>
+              <div><span class="info-label">Pending Review</span>Your request will be reviewed by an admin before confirmation.</div>
+            </div>
+            <div class="info-item">
+              <span class="info-icon">🔔</span>
+              <div><span class="info-label">Reminder Sent</span>You'll get a notification 15 minutes before your session starts.</div>
+            </div>
+            <div class="info-item">
+              <span class="info-icon">❌</span>
+              <div><span class="info-label">Cancellations</span>Cancel anytime from My Bookings before the session starts.</div>
+            </div>
+            <div class="info-item">
+              <span class="info-icon">📋</span>
+              <div><span class="info-label">Rules Apply</span>All facility usage policies must be followed. Violations may lead to a penalty.</div>
+            </div>
+          </div>
         </div>
-    </main>
+      </div>
+    </section>
+  </main>
 
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script>
-        particlesJS("particles-js", {
-            "particles": {
-                "number": {"value": 70, "density": {"enable": true, "value_area": 900}},
-                "color": {"value": "#00d4ff"},
-                "shape": {"type": "circle"},
-                "opacity": {"value": 0.35, "random": false},
-                "size": {"value": 3, "random": true},
-                "line_linked": {"enable": true, "distance": 120, "color": "#00d4ff", "opacity": 0.25, "width": 1},
-                "move": {"enable": true, "speed": 3, "direction": "none", "random": false, "straight": false, "out_mode": "out"}
-            },
-            "interactivity": {"events": {}, "modes": {}}
-        });
-    </script>
+  <script>
+    const dateInput = document.querySelector('input[name="date"]');
+    if (dateInput) dateInput.min = new Date().toISOString().split('T')[0];
+
+    const profileBtn = document.querySelector('.profile-btn');
+    const menu = document.querySelector('.profile-menu');
+    if (profileBtn && menu) {
+      profileBtn.addEventListener('click', () => menu.classList.toggle('open'));
+      document.addEventListener('click', e => { if (!profileBtn.contains(e.target)) menu.classList.remove('open'); });
+    }
+
+    const cal = document.querySelector('.calendar-grid');
+    if (cal) {
+      for (let i = 0; i < 28; i++) {
+        const d = document.createElement('div');
+        d.className = i % 7 === 0 ? 'cal-tile cal-accent' : 'cal-tile';
+        cal.appendChild(d);
+      }
+    }
+  </script>
 </body>
 </html>
-

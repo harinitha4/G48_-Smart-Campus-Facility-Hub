@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Profile</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
 </head>
 <body class="dashboard-page">
   <aside class="sidebar">
@@ -20,10 +20,10 @@
 
     <nav class="nav">
       <a class="nav-link" href="/dashboard">Dashboard</a>
-      <a class="nav-link" href="#">My Bookings</a>
+      <a class="nav-link" href="/bookings">My Bookings</a>
       <a class="nav-link active" href="/profile">My Profile</a>
-      <a class="nav-link" href="#">Notifications</a>
-      <a class="nav-link" href="#">Help</a>
+      <a class="nav-link" href="/notifications">Notifications</a>
+      <a class="nav-link" href="/help">Help</a>
       <a class="nav-link" href="/logout">Logout</a>
     </nav>
 
@@ -50,10 +50,10 @@
       </div>
 
       <div class="top-actions">
-        <button class="icon-btn" type="button" aria-label="Notifications">
+        <a href="/notifications" class="icon-btn" aria-label="Notifications" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">
           <span class="icon">🔔</span>
-          <span class="badge">3</span>
-        </button>
+          <span class="badge">{{ notification_count if notification_count is not none else 0 }}</span>
+        </a>
 
         <div class="profile">
           <button class="profile-btn" type="button">

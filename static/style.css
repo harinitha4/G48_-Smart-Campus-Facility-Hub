@@ -96,12 +96,13 @@ body::after {
     display: none;
     position: absolute;
     right: 0;
+    top: 100%;
     background: linear-gradient(135deg, #4a00e0, #8e2de2);
     min-width: 120px;
     box-shadow: 0 8px 20px rgba(74, 0, 224, 0.4);
     border-radius: 12px;
     z-index: 100;
-    margin-top: 8px;
+    padding-top: 8px;
     overflow: hidden;
 }
 .navbar .dropdown .dropdown-content a {

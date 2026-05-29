@@ -324,10 +324,10 @@
                 <li><a href="{{ url_for('facilities') }}" class="btn active">Bookings</a></li>
                 <li><a href="{{ url_for('contact') }}">Contact</a></li>
                 <li class="dropdown">
-                    <a href="#" class="btn">Login ▾</a>
+                    <a href="/login" class="btn">Login ▾</a>
                     <div class="dropdown-content">
-                        <a href="#">Admin</a>
-                        <a href="#">User</a>
+                        <a href="/admin-login">Admin</a>
+                        <a href="/user-login">User</a>
                     </div>
                 </li>
             </ul>
@@ -355,31 +355,24 @@
                 <div class="orbit-ring" aria-hidden="true"></div>
 
                 <!-- Each hatch door is positioned by JS based on ring slots -->
-
-                <a class="hatch-door" data-room="Sports Courts" data-accent="#30e3ff" data-icon="🏸" style="--i:0; --count:4; left: 50%; top: 50%; text-decoration:none;" href="{{ url_for('facility_booking', facility='Sports Courts') }}">
+                {% set door_accents = ['#30e3ff', '#8e2de2', '#00ffcc', '#ff3d81'] %}
+                {% set door_icons   = ['🏸', '👥', '📚', '🎪'] %}
+                {% set slot_count   = [facilities|length, 4]|min %}
+                {% for f in facilities[:4] %}
+                <a class="hatch-door"
+                   data-room="{{ f.name }}"
+                   data-accent="{{ door_accents[loop.index0] }}"
+                   data-icon="{{ door_icons[loop.index0] }}"
+                   style="--i:{{ loop.index0 }}; --count:{{ slot_count }}; left: 50%; top: 50%; text-decoration:none;"
+                   href="/book/{{ f.id }}">
                     <div class="label">
-                        <span class="icon">🏸</span>
-                        <span class="text">Sports</span>
+                        <span class="icon">{{ door_icons[loop.index0] }}</span>
+                        <span class="text">{{ f.name.split()[0] }}</span>
                     </div>
                 </a>
-                <a class="hatch-door" data-room="Meeting Rooms" data-accent="#8e2de2" data-icon="👥" style="--i:1; --count:4; left: 50%; top: 50%; text-decoration:none;" href="{{ url_for('facility_booking', facility='Meeting Rooms') }}">
-                    <div class="label">
-                        <span class="icon">👥</span>
-                        <span class="text">Meeting</span>
-                    </div>
-                </a>
-                <a class="hatch-door" data-room="Study Space" data-accent="#00ffcc" data-icon="📚" style="--i:2; --count:4; left: 50%; top: 50%; text-decoration:none;" href="{{ url_for('facility_booking', facility='Study Space') }}">
-                    <div class="label">
-                        <span class="icon">📚</span>
-                        <span class="text">Study</span>
-                    </div>
-                </a>
-                <a class="hatch-door" data-room="Event Halls" data-accent="#ff3d81" data-icon="🎪" style="--i:3; --count:4; left: 50%; top: 50%; text-decoration:none;" href="{{ url_for('facility_booking', facility='Event Halls') }}">
-                    <div class="label">
-                        <span class="icon">🎪</span>
-                        <span class="text">Event</span>
-                    </div>
-                </a>
+                {% else %}
+                <p style="color:#7ab8c0; text-align:center;">No facilities available yet.</p>
+                {% endfor %}
 
 
             </div>
@@ -475,4 +468,5 @@
     </script>
 </body>
 </html>
+
 

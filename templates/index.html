@@ -53,61 +53,37 @@
                 </div>
 
                 <div class="home-stats" aria-label="Booking statistics">
-
                     <div class="stat-pill">
-                        <div class="k" id="statTotalBookings">124</div>
+                        <div class="k">{{ total_bookings }}</div>
                         <div class="l">Total bookings</div>
                     </div>
                     <div class="stat-pill">
-                        <div class="k" id="statSpacesAvailable">27</div>
-                        <div class="l">Spaces available</div>
+                        <div class="k">{{ spaces_available }}</div>
+                        <div class="l">Total capacity</div>
                     </div>
                     <div class="stat-pill">
-                        <div class="k" id="statAvgTime">5m</div>
-
-                        <div class="l">Avg booking time</div>
+                        <div class="k">{{ total_users }}</div>
+                        <div class="l">Registered users</div>
                     </div>
                 </div>
             </div>
 
             <div class="home-right">
                 <div class="facility-grid" aria-label="Live facility availability">
-                    <!-- Demo values for now (your friend's code can replace them later) -->
-                    <div class="facility-card">
+                    {% for card in facility_cards %}
+                    <a href="/book/{{ card.id }}" style="text-decoration:none; color:inherit;">
+                    <div class="facility-card{% if card.full %} facility-full{% endif %}">
                         <div class="facility-top">
-                            <div class="facility-icon">🏀</div>
-                            <div class="av-badge">12 Free</div>
+                            <div class="facility-icon">{{ card.icon }}</div>
+                            <div class="av-badge{% if card.badge == 'Full' %} badge-full{% endif %}">{{ card.badge }}</div>
                         </div>
-                        <div class="facility-title">Sports Courts</div>
-                        <div class="facility-desc">Basketball, badminton & tennis slots.</div>
+                        <div class="facility-title">{{ card.name }}</div>
+                        <div class="facility-desc">{{ card.description }}</div>
                     </div>
-
-                    <div class="facility-card">
-                        <div class="facility-top">
-                            <div class="facility-icon">🏢</div>
-                            <div class="av-badge">3 Left</div>
-                        </div>
-                        <div class="facility-title">Meeting Rooms</div>
-                        <div class="facility-desc">Group discussions & presentations.</div>
-                    </div>
-
-                    <div class="facility-card">
-                        <div class="facility-top">
-                            <div class="facility-icon">📚</div>
-                            <div class="av-badge">8 Free</div>
-                        </div>
-                        <div class="facility-title">Study Space</div>
-                        <div class="facility-desc">Focused learning for individuals.</div>
-                    </div>
-
-                    <div class="facility-card">
-                        <div class="facility-top">
-                            <div class="facility-icon">🎟️</div>
-                            <div class="av-badge">5 Free</div>
-                        </div>
-                        <div class="facility-title">Event Halls</div>
-                        <div class="facility-desc">Workshops, seminars & events.</div>
-                    </div>
+                    </a>
+                    {% else %}
+                    <div style="grid-column:1/-1; color:rgba(255,255,255,0.5); text-align:center; padding:30px;">No facilities added yet.</div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -141,7 +117,7 @@
 
     <!-- ROBOT IMAGE -->
 
-    <div class="robot-container" id="robotContainer" style="display:none;">
+    <div class="robot-container" id="robotContainer">
         <img src="{{ url_for('static', filename='robot.png') }}" alt="Robot" class="robot-img" id="robotImg">
     </div>
 
@@ -227,16 +203,11 @@
         (function () {
             var threshold = 100;
             var robotImg = document.getElementById('robotImg');
-            var robotContainer = document.getElementById('robotContainer');
+            var src1 = "{{ url_for('static', filename='robot.png') }}";
+            var src2 = "{{ url_for('static', filename='robot2.png') }}";
 
             function updateRobot() {
-                if (window.scrollY > threshold) {
-                    robotContainer.style.display = 'block';
-                    robotImg.src = "{{ url_for('static', filename='robot2.png') }}";
-                } else {
-                    robotContainer.style.display = 'none';
-                    robotImg.src = "{{ url_for('static', filename='robot.png') }}";
-                }
+                robotImg.src = window.scrollY > threshold ? src2 : src1;
             }
 
             window.addEventListener('scroll', updateRobot);

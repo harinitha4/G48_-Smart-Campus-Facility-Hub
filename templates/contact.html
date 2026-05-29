@@ -85,10 +85,10 @@
         <li><a href="{{ url_for('bookings_360') }}">Bookings</a></li>
 <li><a href="{{ url_for('contact') }}" class="btn active">Contact</a></li>
                 <li class="dropdown">
-                    <a href="#" class="btn">Login ▾</a>
+                    <a href="/login" class="btn">Login ▾</a>
                     <div class="dropdown-content">
-                        <a href="#">Admin</a>
-                        <a href="#">User</a>
+                        <a href="/admin-login">Admin</a>
+                        <a href="/user-login">User</a>
                     </div>
                 </li>
             </ul>
@@ -134,3 +134,4 @@
     </script>
 </body>
 </html>
+
