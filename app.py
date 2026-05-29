@@ -788,12 +788,48 @@ def edit_booking(id):
 def approve_booking(id):
     guard = require_admin()
     if guard: return guard
+
     conn = get_db()
-    conn.execute("UPDATE bookings SET is_approved=1 WHERE id=?", (id,))
+    conn.execute(
+        "UPDATE bookings SET is_approved=1, status='approved' WHERE id=?",
+        (id,)
+    )
     conn.commit()
     conn.close()
     flash("Booking approved!")
     return redirect("/admin/bookings")
+
+
+@app.route("/admin/reject-booking/<int:id>", methods=["POST"])
+def reject_booking(id):
+    guard = require_admin()
+    if guard: return guard
+
+    conn = get_db()
+    conn.execute(
+        "UPDATE bookings SET is_approved=0, status='rejected' WHERE id=?",
+        (id,)
+    )
+    conn.commit()
+    conn.close()
+
+    flash("Booking rejected!")
+    return redirect("/admin/bookings")
+
+
+@app.route("/admin/delete-booking/<int:id>", methods=["POST"])
+def delete_booking(id):
+    guard = require_admin()
+    if guard: return guard
+
+    conn = get_db()
+    conn.execute("DELETE FROM bookings WHERE id=?", (id,))
+    conn.commit()
+    conn.close()
+
+    flash("Booking deleted!")
+    return redirect("/admin/bookings")
+
 
 
 @app.route("/admin/facilities")

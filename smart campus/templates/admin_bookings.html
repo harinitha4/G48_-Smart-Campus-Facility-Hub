@@ -41,7 +41,10 @@
                 <button type="submit" style="background: #ff6b6b; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; min-width: 80px;" onclick="return confirm('Reject this booking?')">❌ Reject</button>
             </form>
             <a href="/admin/edit-booking/{{ booking.id }}" style="color: #9cdcfe; margin-right: 8px; text-decoration: none; padding: 6px 12px; border: 1px solid #9cdcfe; border-radius: 4px; display: inline-block;">✏️ Edit</a>
-            <a href="/admin/delete-booking/{{ booking.id }}" onclick="return confirm('Delete this booking?')" style="color: #e57373; text-decoration: none; padding: 6px 12px; border: 1px solid #e57373; border-radius: 4px; display: inline-block;">🗑️ Delete</a>
+            <form method="POST" action="/admin/delete-booking/{{ booking.id }}" style="display: inline-block;">
+                <button type="submit" onclick="return confirm('Delete this booking?')" style="background: transparent; color: #e57373; border: 1px solid #e57373; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; min-width: 80px;">🗑️ Delete</button>
+            </form>
+
         </td>
     </tr>
     {% endfor %}
