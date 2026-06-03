@@ -27,6 +27,42 @@ template_paths = [
 template_paths = [p for p in template_paths if os.path.isdir(p)]
 
 # Single unified static folder — all CSS/JS/images copied here.
+# This repo also contains multiple nested `smart campus/.../static` folders.
+# Some laptops may not have the same top-level `/static` contents.
+# To make static loading deterministic, we merge nested static folders into the
+# top-level `static/` at startup (only if missing).
+
+def merge_static_fallbacks():
+    top_static = os.path.join(repo_root, "static")
+    candidate_statics = [
+        os.path.join(repo_root, "smart campus", "static"),
+        os.path.join(repo_root, "smart campus", "smart campus", "static"),
+        os.path.join(repo_root, "smart-hub", "static"),
+    ]
+
+    if not os.path.isdir(top_static):
+        os.makedirs(top_static, exist_ok=True)
+
+    # Copy missing files only (by relative path) to avoid overwriting.
+    for cand in candidate_statics:
+        if not os.path.isdir(cand):
+            continue
+        for root, _, files in os.walk(cand):
+            for fn in files:
+                src = os.path.join(root, fn)
+                rel = os.path.relpath(src, cand)
+                dst = os.path.join(top_static, rel)
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                if not os.path.exists(dst):
+                    try:
+                        import shutil
+                        shutil.copy2(src, dst)
+                    except Exception:
+                        pass
+
+
+merge_static_fallbacks()
+
 main_static_folder = os.path.join(repo_root, "static")
 
 app = Flask(
@@ -34,6 +70,7 @@ app = Flask(
     template_folder=os.path.join(repo_root, "templates"),
     static_folder=main_static_folder,
 )
+
 
 # Override Jinja loader to search all template folders.
 app.jinja_loader = ChoiceLoader([FileSystemLoader(p) for p in template_paths])
