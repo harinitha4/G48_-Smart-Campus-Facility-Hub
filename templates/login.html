@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<<<<<<< HEAD
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -55,3 +56,70 @@
 </body>
 </html>
 
+=======
+<html>
+<head>
+<title>Login</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard_theme.css') }}">
+</head>
+
+<body class="login-page">
+
+<div class="container">
+    <h2 style="margin-bottom:8px;">Login</h2>
+
+    {%- with messages = get_flashed_messages() -%}
+      {%- if messages -%}
+        <div class="flash-messages">
+          {%- for msg in messages -%}
+            <div class="flash-message">{{ msg }}</div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endwith -%}
+
+    <form method="POST" action="/login" class="login-form">
+
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+
+    <button type="submit">Login</button>
+</form>
+
+<p style="text-align:center; margin-top:10px;"><a href="/register">Go to Register</a></p>
+</div>
+
+  <!-- particles background -->
+  <div id="particles-js" aria-hidden="true"></div>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    if (window.particlesJS) {
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 80 },
+          color: { value: "#27f5ff" },
+          shape: { type: "circle" },
+          opacity: { value: 0.5 },
+          size: { value: 3 },
+          line_linked: {
+            enable: true,
+            distance: 150,
+            color: "#27f5ff",
+            opacity: 0.4,
+            width: 1
+          },
+          move: { enable: true, speed: 2 }
+        },
+        interactivity: {
+          events: {
+            onhover: { enable: true, mode: "grab" }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
+>>>>>>> 175c41765fb524453c0450be97735bc0fdb42d0d

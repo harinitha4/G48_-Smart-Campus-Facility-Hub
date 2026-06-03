@@ -1,0 +1,81 @@
+/* Dashboard theme (requested) */
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI', sans-serif;
+}
+
+/* BODY */
+body.dashboard-page{
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: white;
+  min-height: 100vh;
+}
+
+/* Keep your existing layout, just re-tint core dashboard elements */
+body.dashboard-page .sidebar{
+  background: rgba(10, 16, 43, 0.65);
+  border-right: 1px solid rgba(255,255,255,0.10);
+}
+
+body.dashboard-page .main{
+  color:#fff;
+}
+
+/* PARTICLES BACKGROUND (visual only) */
+#particles-js{
+  position:fixed;
+  width:100%;
+  height:100%;
+  top:0;
+  left:0;
+  background: linear-gradient(135deg,#031521,#062c3b,#083d52);
+  z-index:-1;
+}
+
+/* keep dashboard content above particles */
+body.dashboard-page,
+body.dashboard-page *{
+  position:relative;
+}
+
+/* Navigation */
+body.dashboard-page .nav-link{
+  color: rgba(255,255,255,0.9);
+}
+
+body.dashboard-page .nav-link.active{
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+/* Re-tint cards */
+.calendar-card,
+.facility-card,
+.profile-card,
+.booking-item,
+.stat,
+.favorite-item{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+/* Facilities thumb baseline */
+.thumb{
+  background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+}
+
+/* Buttons */
+.btn-primary{
+  background: linear-gradient(135deg, #74ebd5, #acb6e5);
+  color: #06121a;
+  border-color: transparent;
+}
+
+.btn-outline{
+  border-color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.95);
+}
+
