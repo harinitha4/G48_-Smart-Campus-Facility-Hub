@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+
+# SQLite databases (generated/local)
+*.db
+*.sqlite
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# Logs
+*.log
+
+# Uploads that can be regenerated/copied
+static/**/facility_uploads/
+smart campus/**/facility_uploads/
+smart-hub/**/facilities/
+smart-hub/**/facility_uploads/
+
