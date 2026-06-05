@@ -435,9 +435,22 @@ def _handle_login(request, intended_role=None):
         return redirect("/admin-login" if intended_role == "admin" else "/login")
 
     try:
+        # Werkzeug expects the stored value to be a hash string.
         password_match = check_password_hash(user["password"], password)
     except Exception:
-        password_match = (password == user["password"])
+        password_match = False
+
+    # Debug fallback: if for some reason the hash check fails, log the mismatch reason.
+    # (No password is printed.)
+    if not password_match:
+        # If the app is using an old/foreign database file, admin users might not match.
+        # This keeps behavior secure (no secrets) while helping diagnose wrong DB issues.
+        app.logger.warning(
+            "Login failed: identifier=%s intended_role=%s db_password_type=%s",
+            identifier,
+            intended_role,
+            type(user['password']).__name__ if user and 'password' in user.keys() else 'unknown',
+        )
 
     if not password_match:
         flash("Incorrect password")
