@@ -67,6 +67,15 @@ body.dashboard-page .nav-link.active{
   background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
 }
 
+/* Rules & Regulations spacing (fix excessive gaps) */
+.rules-section{margin:14px 0 18px; padding:0;}
+.rules-card{padding:16px 16px; margin:0;}
+.rules-head{margin-bottom:10px;}
+.rules-list{display:flex; flex-direction:column; gap:6px;}
+
+rule-item{display:flex; align-items:flex-start; gap:6px; line-height:1.15; margin:0; padding:0;}
+.rule-text{display:inline; white-space:normal; word-spacing:0; letter-spacing:0;}
+
 /* Buttons */
 .btn-primary{
   background: linear-gradient(135deg, #74ebd5, #acb6e5);
@@ -78,4 +87,5 @@ body.dashboard-page .nav-link.active{
   border-color: rgba(255,255,255,0.35);
   color: rgba(255,255,255,0.95);
 }
+
 

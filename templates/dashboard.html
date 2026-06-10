@@ -69,10 +69,10 @@
         </div>
 
         <div class="rules-list">
-          <div class="rule-item"><span class="rule-bullet">1</span> All bookings are for <b>2 hours</b> per user.</div>
-          <div class="rule-item"><span class="rule-bullet">2</span> All users must wear <b>suitable clothing</b> for each facility.</div>
-          <div class="rule-item"><span class="rule-bullet">3</span> No <b>last-minute cancellations</b>.</div>
-          <div class="rule-item"><span class="rule-bullet">4</span> If you cancel last-minute, you will get a penalty: <b>no other bookings for the next 1 week</b>.</div>
+          <div class="rule-item"><span class="rule-bullet">1</span><span class="rule-text">All bookings are for <b>2 hours</b> per user.</span></div>
+          <div class="rule-item"><span class="rule-bullet">2</span><span class="rule-text">All user must wear <b>suitable clothing</b> for each facility.</span></div>
+          <div class="rule-item"><span class="rule-bullet">3</span><span class="rule-text">No <b>last-minute cancellations</b>.</span></div>
+          <div class="rule-item"><span class="rule-bullet">4</span><span class="rule-text">Last-minute cancellation will be given penalty of no booking for <b>1 week</b>.</span></div>
         </div>
       </div>
     </section>
@@ -145,8 +145,7 @@
               </div>
 
               <div class="card-actions" onmousedown="event.stopPropagation();" onclick="event.stopPropagation();">
-                <form method="POST" action="/booking/create" class="book-now-form" onsubmit="event.stopPropagation()">
-                  <input type="hidden" name="facility_title" value="${f.title}" />
+                <form method="GET" action="/book/${f.id}" class="book-now-form" onsubmit="event.stopPropagation()">
                   <button class="btn btn-primary" type="submit">Book Now</button>
                 </form>
               </div>

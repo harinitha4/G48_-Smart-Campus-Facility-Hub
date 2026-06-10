@@ -143,9 +143,11 @@
       grid.innerHTML = items.map(f => {
         const status = statusFor(f);
         const thumbStyle = f.image ? `background-image:url(${f.image}); background-size:cover; background-position:center;` : '';
-        const btn360 = f.view360
-          ? `<button class="btn btn-outline" type="button" onclick="open360('${f.view360}','${f.title.replace(/'/g,"\\'")}')">View 360°</button>`
-          : `<button class="btn btn-outline" type="button" style="opacity:.45; cursor:not-allowed;" disabled title="No 360° view available">View 360°</button>`;
+        const btn360 = f.view_360_filename ? `
+          <button class="btn btn-outline" type="button" style="display:inline-flex; align-items:center; justify-content:center;" onclick="open360('${f.view_360_filename}','${f.title.replace(/'/g,"\\'")}')">View 360</button>
+          ` : `
+          <button class="btn btn-outline" type="button" style="opacity:.45; cursor:not-allowed; display:inline-flex; align-items:center; justify-content:center;" disabled title="No 360 view available">View 360</button>
+          `;
         return `
           <article class="facility-card" data-category="${f.category}">
             <div class="thumb" style="${thumbStyle}">
