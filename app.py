@@ -485,13 +485,39 @@ def dashboard():
     facilities = conn.execute(
         "SELECT id, name, location, description, image_filenames, category, capacity, view_360_filename FROM facilities"
     ).fetchall()
+
+    # Convert stored filenames (local DB values) -> public URLs that the browser can request.
+    # Stored in DB as comma-separated filenames relative to /static/facility_uploads/.
+    facilities_for_client = []
+    for f in facilities:
+        image_filenames = (f["image_filenames"] or "").split(",") if f["image_filenames"] else []
+        image_filenames = [x.strip() for x in image_filenames if x.strip()]
+        first_image = image_filenames[0] if image_filenames else ""
+
+        facilities_for_client.append(
+            {
+                "id": f["id"],
+                "title": f["name"],
+                "category": f["category"],
+                "capacity": f["capacity"],
+                "description": f["description"],
+                "image": f"/static/facility_uploads/{first_image}" if first_image else "",
+                # status fields used by the dashboard UI; keep it simple for now.
+                "status": "Available",
+                "availability_status": "Available",
+                "location": f["location"],
+                "view_360_filename": f["view_360_filename"],
+                "view_360_url": f["view_360_filename"],
+            }
+        )
+
     conn.close()
 
     return render_template(
         "dashboard.html",
         name=session.get("user_name", "User"),
         notification_count=notification_count,
-        facilities=facilities,
+        facilities=facilities_for_client,
     )
 
 
