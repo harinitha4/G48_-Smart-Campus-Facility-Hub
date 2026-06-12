@@ -523,19 +523,13 @@ def dashboard():
 
 @app.route("/help")
 def help_page():
+    # Keep /help as a backwards-compatible shortcut.
+    # Requirement: Help button should jump to the Main Dashboard Contact section/page.
     guard = require_student()
     if guard:
         return guard
-    name = session.get("user_name", "User")
+    return redirect(url_for("contact"))
 
-    conn = get_db()
-    notif_count = conn.execute(
-        "SELECT COUNT(*) as cnt FROM booking_notifications WHERE user_id=? AND is_sent=0",
-        (session.get("user_id"),),
-    ).fetchone()["cnt"]
-    conn.close()
-
-    return render_template("help.html", name=name, notification_count=notif_count)
 
 
 @app.route("/profile", methods=["GET", "POST"])
