@@ -47,6 +47,7 @@ body.dashboard-page .nav-link{
 }
 
 body.dashboard-page .nav-link.active{
+
   background: rgba(255,255,255,0.10);
   border: 1px solid rgba(255,255,255,0.18);
 }
