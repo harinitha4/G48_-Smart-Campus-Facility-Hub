@@ -143,11 +143,12 @@
       grid.innerHTML = items.map(f => {
         const status = statusFor(f);
         const thumbStyle = f.image ? `background-image:url(${f.image}); background-size:cover; background-position:center;` : '';
-        const btn360 = f.view_360_filename ? `
-          <button class="btn btn-outline" type="button" style="display:inline-flex; align-items:center; justify-content:center;" onclick="open360('${f.view_360_filename}','${f.title.replace(/'/g,"\\'")}')">View 360</button>
+        const btn360 = f.view360 ? `
+          <button class="btn btn-outline" type="button" style="display:inline-flex; align-items:center; justify-content:center;" onclick="open360('${f.view360}','${f.title.replace(/'/g,"\\'")}')">View 360</button>
           ` : `
           <button class="btn btn-outline" type="button" style="opacity:.45; cursor:not-allowed; display:inline-flex; align-items:center; justify-content:center;" disabled title="No 360 view available">View 360</button>
           `;
+
         return `
           <article class="facility-card" data-category="${f.category}">
             <div class="thumb" style="${thumbStyle}">
@@ -205,14 +206,33 @@
     function open360(src, title) {
       const img = document.getElementById('img360');
       const frame = document.getElementById('iframe360');
-      const isEmbed = src.startsWith('http');
-      img.style.display = isEmbed ? 'none' : 'block';
-      frame.style.display = isEmbed ? 'block' : 'none';
-      if (isEmbed) frame.src = src;
-      else img.src = src;
+
+      const s = String(src || '').trim();
+      const isProbablyUrl =
+        s.startsWith('http://') ||
+        s.startsWith('https://') ||
+        s.startsWith('//') ||
+        s.startsWith('www.');
+
+      img.style.display = isProbablyUrl ? 'none' : 'block';
+      frame.style.display = isProbablyUrl ? 'block' : 'none';
+
+      if (isProbablyUrl) {
+        // Normalize schemeless / www links for iframe
+        let normalized = s;
+        if (normalized.startsWith('//')) normalized = 'https:' + normalized;
+        if (normalized.startsWith('www.')) normalized = 'https://' + normalized;
+        frame.src = normalized;
+        img.src = '';
+      } else {
+        frame.src = '';
+        img.src = s;
+      }
+
       document.getElementById('lbl360').textContent = title + ' — 360° View';
       document.getElementById('modal360').style.display = 'flex';
     }
+
     function close360() {
       document.getElementById('modal360').style.display = 'none';
       document.getElementById('img360').src = '';

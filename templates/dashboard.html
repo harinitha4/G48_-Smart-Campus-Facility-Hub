@@ -82,6 +82,16 @@
     </section>
   </main>
 
+  <!-- 360° lightbox modal -->
+  <div id="modal360" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+    <div style="position:relative; width:min(92vw,960px); max-height:88vh;">
+      <button onclick="close360()" style="position:absolute; top:-38px; right:0; background:none; border:none; color:#fff; font-size:22px; cursor:pointer; width:auto; margin-top:0;">✕ Close</button>
+      <img id="img360" src="" alt="360° View" style="max-width:100%; max-height:78vh; border-radius:12px; border:2px solid rgba(0,196,204,0.4); display:block;" />
+      <iframe id="iframe360" src="" frameborder="0" allowfullscreen allow="xr-spatial-tracking; gyroscope; accelerometer" style="width:100%; height:78vh; border-radius:12px; border:2px solid rgba(0,196,204,0.4); display:none;"></iframe>
+      <div id="lbl360" style="text-align:center; color:#7ab8c0; font-size:13px; margin-top:10px;"></div>
+    </div>
+  </div>
+
   <!-- Particles background (visual only; no layout changes) -->
   <div id="particles-js" aria-hidden="true"></div>
 
@@ -128,6 +138,18 @@
 
     function render(items) {
       grid.innerHTML = items.map(f => {
+        const view360Src = f.view_360_filename
+          ? (String(f.view_360_filename).startsWith('http')
+              ? f.view_360_filename
+              : ('/static/facility_uploads/' + f.view_360_filename))
+          : '';
+
+        const btn360 = f.view_360_filename ? `
+          <button class="btn btn-outline" type="button" style="display:inline-flex; align-items:center; justify-content:center; margin-left:8px;" onclick="open360('${view360Src}','${f.title.replace(/'/g,"\\'")}')">View 360</button>
+        ` : `
+          <button class="btn btn-outline" type="button" style="opacity:.45; cursor:not-allowed; margin-left:8px;" disabled>View 360</button>
+        `;
+
         return `
           <article class="facility-card" data-category="${f.category}" onclick="window.location='/facility/${f.id}'" style="cursor:pointer;">
             <div class="thumb" style="background-image:url(${encodeURI(f.image || '')}); background-size:cover; background-position:center;">
@@ -148,6 +170,7 @@
                 <form method="GET" action="/book/${f.id}" class="book-now-form" onsubmit="event.stopPropagation()">
                   <button class="btn btn-primary" type="submit">Book Now</button>
                 </form>
+                ${btn360}
               </div>
             </div>
           </article>
