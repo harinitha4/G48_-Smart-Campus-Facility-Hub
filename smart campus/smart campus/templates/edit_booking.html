@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit Booking</h1>
+
+<p><strong>User:</strong> {{ booking.username }} <strong>Facility:</strong> {{ booking.facility_name }}</p>
+
+<form method="POST" style="max-width: 600px;">
+    <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #9cdcfe;">Date (YYYY-MM-DD)</label>
+        <input type="date" name="date" value="{{ booking.date }}" required style="width: 100%; padding: 12px; border: 1px solid rgba(156,220,254,0.3); border-radius: 8px; background: rgba(15,42,51,0.8); color: white; font-size: 16px;">
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #9cdcfe;">Time (HH:MM)</label>
+        <input type="time" name="time" value="{{ booking.time }}" required style="width: 100%; padding: 12px; border: 1px solid rgba(156,220,254,0.3); border-radius: 8px; background: rgba(15,42,51,0.8); color: white; font-size: 16px;">
+    </div>
+    
+    <div style="margin-bottom: 24px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #9cdcfe;">Status</label>
+        <select name="status" style="width: 100%; padding: 12px; border: 1px solid rgba(156,220,254,0.3); border-radius: 8px; background: rgba(15,42,51,0.8); color: white; font-size: 16px;">
+            <option value="pending" {% if booking.status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="confirmed" {% if booking.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+            <option value="cancelled" {% if booking.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+    </div>
+    
+    <div style="margin-bottom: 24px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #9cdcfe;">Approved</label>
+        <input type="checkbox" name="is_approved" {% if booking.is_approved %}checked{% endif %} style="width: 20px; height: 20px; transform: scale(1.5); margin-top: 4px;">
+        <span style="margin-left: 12px; color: white;">Mark as approved</span>
+    </div>
+    
+    <button type="submit" style="padding: 14px 28px; background: linear-gradient(135deg, #2196f3, #1976d2); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">💾 Update Booking</button>
+    
+    <a href="/admin/bookings" style="display: inline-block; margin-left: 16px; padding: 14px 24px; background: rgba(156,220,254,0.15); color: #9cdcfe; text-decoration: none; border-radius: 8px; border: 1px solid rgba(156,220,254,0.3); font-weight: 500;">← Back to Bookings</a>
+</form>
+{% endblock %}
+
