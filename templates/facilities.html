@@ -141,6 +141,14 @@
             font-size: 3rem;
             margin-bottom: 15px;
         }
+        .facility-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(0, 229, 255, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -174,8 +182,14 @@
         {% set icons = ['🏀','🏢','🎟️','📚','🏋️','🎨','🖥️','🌿'] %}
         {% for f in facilities %}
         <a class="facility-card" href="/book/{{ f.id }}" style="text-decoration:none; color:inherit;">
+            {% set filenames = f.image_filenames.split(',') if f.image_filenames else [] %}
+            {% if filenames and filenames[0] %}
+            <img src="{{ url_for('static', filename='facility_uploads/' + filenames[0]) }}" alt="{{ f.name }}" class="facility-image">
+            {% else %}
             <div class="icon">{{ icons[loop.index0 % icons|length] }}</div>
+            {% endif %}
             <h3>{{ f.name }}</h3>
+            <p>{{ f.location or '' }}</p>
             <p>{{ f.description or 'Click to book this facility.' }}</p>
         </a>
         {% else %}

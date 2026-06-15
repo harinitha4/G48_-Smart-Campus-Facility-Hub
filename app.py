@@ -365,7 +365,7 @@ def contact():
 @app.route('/facilities')
 def facilities():
     conn = get_db()
-    facilities_list = conn.execute("SELECT id, name, description FROM facilities ORDER BY id").fetchall()
+    facilities_list = conn.execute("SELECT id, name, description, location, image_filenames, category FROM facilities ORDER BY id").fetchall()
     conn.close()
     return render_template('facilities.html', facilities=facilities_list)
 
