@@ -159,6 +159,13 @@
     font-size: 17px;
     flex-shrink: 0;
   }
+  .facility-thumb {
+    width: 38px; height: 38px;
+    border-radius: 9px;
+    object-fit: cover;
+    border: 1px solid rgba(0,196,204,0.3);
+    flex-shrink: 0;
+  }
 
   .facility-info { flex: 1; }
   .facility-name { font-size: 13px; font-weight: 600; color: var(--white); }
@@ -340,7 +347,12 @@
     <div class="facility-list">
       {% for f in facilities[:4] %}
         <div class="facility-item">
+          {% set imgs = (f.image_filenames or '').split(',') if f.image_filenames else [] %}
+          {% if imgs and imgs[0] %}
+          <img src="{{ url_for('static', filename='facility_uploads/' ~ imgs[0]) }}" alt="{{ f.name }}" class="facility-thumb">
+          {% else %}
           <div class="facility-icon">🏛</div>
+          {% endif %}
           <div class="facility-info">
             <div class="facility-name">{{ f['name'] }}</div>
             <div class="facility-cap">Location: {{ f['location'] }}</div>

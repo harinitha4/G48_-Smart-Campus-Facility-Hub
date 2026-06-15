@@ -2,8 +2,16 @@ from flask import Flask, render_template, request, redirect, session, url_for, f
 import sqlite3
 import re
 import os
+from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+
+# Malaysia timezone (UTC+8)
+MALAYSIA_TZ = timezone(timedelta(hours=8))
+
+def malaysia_now():
+    """Return current datetime in Malaysia timezone."""
+    return datetime.now(MALAYSIA_TZ)
 
 # Multi-template/static support:
 # This repo contains multiple nested versions of templates/static.
@@ -114,7 +122,7 @@ def init_db():
         remind_at TEXT,
         message TEXT,
         is_sent INTEGER DEFAULT 0,
-        created_at TEXT DEFAULT (datetime('now'))
+        created_at TEXT DEFAULT (datetime('now', '+8 hours'))
     )
     """)
 
@@ -131,6 +139,17 @@ def init_db():
     )
     """)
 
+    # Contact messages table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS contact_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        email TEXT,
+        message TEXT,
+        created_at TEXT DEFAULT (datetime('now', '+8 hours'))
+    )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -144,7 +163,7 @@ def seed_data():
     if not cursor.fetchone():
         cursor.execute(
             "INSERT INTO users (name, username, email, password, role) VALUES (?, ?, ?, ?, ?)",
-            ("Administrator", "admin", "admin@smartcampus.com", "admin123", "admin")
+            ("Administrator", "admin", "admin@smartcampus.com", generate_password_hash("admin123"), "admin")
         )
 
     # Seed sample facilities
@@ -205,7 +224,6 @@ def require_student():
 # ============================================================
 # NOTIFICATIONS (in-app reminders)
 # ============================================================
-from datetime import datetime, timedelta
 
 def parse_booking_datetime(date_str: str, time_str: str) -> datetime | None:
     """Parse booking date/time from DB into a datetime."""
@@ -230,7 +248,7 @@ def ensure_notification_scheduler():
     def worker():
         while True:
             try:
-                now = datetime.now()
+                now = malaysia_now()
                 conn = get_db()
                 cur = conn.cursor()
                 rows = cur.execute(
@@ -290,8 +308,7 @@ def notifications():
 # ============================================================
 @app.route('/')
 def index():
-    from datetime import date as _date
-    today = _date.today().isoformat()
+    today = malaysia_now().date().isoformat()
     conn = get_db()
 
     total_bookings = conn.execute("SELECT COUNT(*) FROM bookings").fetchone()[0]
@@ -358,8 +375,24 @@ def index():
     )
 
 
-@app.route('/contact')
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        message = request.form.get('message', '').strip()
+        if name and email and message:
+            conn = get_db()
+            conn.execute(
+                "INSERT INTO contact_messages (name, email, message, created_at) VALUES (?, ?, ?, ?)",
+                (name, email, message, malaysia_now().strftime("%Y-%m-%d %H:%M"))
+            )
+            conn.commit()
+            conn.close()
+            flash("Your message has been sent! We'll get back to you soon.")
+        else:
+            flash("Please fill in all fields.")
+        return redirect(url_for('contact'))
     return render_template('contact.html')
 
 @app.route('/facilities')
@@ -476,15 +509,14 @@ def facility_booking(facility_id):
         booking_id = cur.lastrowid
         conn.commit()
 
-        from datetime import datetime
         dt = datetime.strptime(f"{booking_date} {booking_time}", "%Y-%m-%d %H:%M")
         remind_at_dt = dt - timedelta(minutes=15)
         remind_at = remind_at_dt.strftime("%Y-%m-%d %H:%M")
 
         message = f"Reminder: your booking at {booking_time} for {facility} starts in 15 minutes."
         conn.execute(
-            "INSERT INTO booking_notifications (user_id, booking_id, remind_at, message, is_sent) VALUES (?, ?, ?, ?, 0)",
-            (user_id, booking_id, remind_at, message)
+            "INSERT INTO booking_notifications (user_id, booking_id, remind_at, message, is_sent, created_at) VALUES (?, ?, ?, ?, 0, ?)",
+            (user_id, booking_id, remind_at, message, malaysia_now().strftime("%Y-%m-%d %H:%M"))
         )
         conn.commit()
         conn.close()
@@ -574,13 +606,10 @@ def _handle_login(request, intended_role=None):
     conn.close()
 
     if user:
-        if user["role"] == "admin":
+        try:
+            password_match = check_password_hash(user["password"], password)
+        except Exception:
             password_match = (password == user["password"])
-        else:
-            try:
-                password_match = check_password_hash(user["password"], password)
-            except Exception:
-                password_match = (password == user["password"])
 
         if password_match:
             session["user_id"] = user["id"]
@@ -940,8 +969,7 @@ def admin_schedule_alias():
 def todays_schedule():
     guard = require_admin()
     if guard: return guard
-    from datetime import datetime
-    selected_date = request.args.get("date") or datetime.now().strftime("%Y-%m-%d")
+    selected_date = request.args.get("date") or malaysia_now().strftime("%Y-%m-%d")
     conn = get_db()
     schedules = conn.execute(
         "SELECT * FROM todays_schedule WHERE date=? ORDER BY time ASC", (selected_date,)
@@ -1014,10 +1042,9 @@ def todays_schedule_delete(id):
 def admin_activity():
     guard = require_admin()
     if guard: return guard
-    from datetime import datetime, timedelta
     conn = get_db()
-    today = datetime.now().strftime("%Y-%m-%d")
-    yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    today = malaysia_now().strftime("%Y-%m-%d")
+    yesterday = (malaysia_now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
     # Recent bookings
     bookings = conn.execute("""
@@ -1059,6 +1086,18 @@ def admin_activity():
     )
 
 
+@app.route("/admin/contact")
+def admin_contact():
+    guard = require_admin()
+    if guard: return guard
+    conn = get_db()
+    messages = conn.execute(
+        "SELECT * FROM contact_messages ORDER BY created_at DESC"
+    ).fetchall()
+    conn.close()
+    return render_template("admin_contact.html", messages=messages)
+
+
 @app.route("/admin/penalties")
 def penalties_page():
     guard = require_admin()
@@ -1077,9 +1116,8 @@ def send_notice():
     # In this project, reminders are per-user booking_notifications.
     # This endpoint processes all due reminders for all users.
     if request.method == 'POST':
-        from datetime import datetime
         try:
-            now = datetime.now().strftime("%Y-%m-%d %H:%M")
+            now = malaysia_now().strftime("%Y-%m-%d %H:%M")
             conn = get_db()
             cur = conn.cursor()
             rows = cur.execute(
