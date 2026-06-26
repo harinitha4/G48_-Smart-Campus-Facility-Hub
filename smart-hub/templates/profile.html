@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -247,3 +248,254 @@
 </body>
 </html>
 
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <div class="brand-mark">🏫</div>
+        <div class="brand-text">
+          <div class="brand-name">Smart Campus</div>
+          <div class="brand-sub">Facility Hub</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-link" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/bookings">My Bookings</a>
+      <a class="nav-link active" href="/profile">My Profile</a>
+      <a class="nav-link" href="/notifications">Notifications</a>
+      <a class="nav-link" href="/help">Help</a>
+      <a class="nav-link" href="/logout">Logout</a>
+    </nav>
+
+    <div class="sidebar-cta">
+      <div class="calendar-card">
+        <div class="calendar-head">
+          <span class="calendar-dot"></span>
+          <div>
+            <div class="calendar-title">Profile</div>
+            <div class="calendar-sub">Update your preferences</div>
+          </div>
+        </div>
+        <div class="calendar-grid" aria-hidden="true"></div>
+        <button class="cta-button" type="button" onclick="scrollTo(0,0)">Back to Top</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="welcome">
+        <div class="welcome-title">My Profile 👋</div>
+        <div class="welcome-sub">Manage personal details, preferences, and account settings.</div>
+      </div>
+
+      <div class="top-actions">
+        <a href="/notifications" class="icon-btn" aria-label="Notifications" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">
+          <span class="icon">🔔</span>
+          <span class="badge">{{ notification_count if notification_count is not none else 0 }}</span>
+        </a>
+
+        <div class="profile">
+          <button class="profile-btn" type="button">
+            <span class="avatar">{{ (name[0] if name else 'U')|upper }}</span>
+            <span class="profile-caret">▾</span>
+          </button>
+          <div class="profile-menu" role="menu">
+            <a href="/profile" role="menuitem">My Profile</a>
+            <a href="#" role="menuitem">Settings</a>
+            <a href="/logout" role="menuitem">Logout</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="profile-layout">
+      <div class="profile-left">
+        <section class="profile-card">
+          <h2 class="profile-title">Personal Info</h2>
+
+          <div class="photo-row">
+              <div class="photo-box">
+              <img id="profile-photo" alt="Profile photo" src="{{ photo_url }}" />
+              <div class="photo-hint">Upload new photo</div>
+            </div>
+
+            <div class="photo-upload">
+              <label class="field-label" for="photo-input">Profile photo</label>
+              <input id="photo-input" name="photo" type="file" accept="image/*" />
+              <p class="help-text">Stored locally for this session (demo). Form submission updates your profile fields.</p>
+            </div>
+          </div>
+
+          <form id="profile-form" method="POST" action="/profile" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_dummy" value="1" />
+
+            <div class="grid-2">
+              <div class="field">
+                <label class="field-label" for="full-name">Full name</label>
+                <input id="full-name" name="full_name" type="text" value="{{ full_name }}" required />
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="staff-id">Student/Staff ID</label>
+                <input id="staff-id" name="student_id" type="text" value="{{ student_id }}" required />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label class="field-label" for="email">Email</label>
+                <input id="email" name="email" type="email" value="{{ email }}" required />
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="phone">Phone number</label>
+                <input id="phone" name="phone" type="tel" value="{{ phone }}" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label class="field-label" for="department">Department/Faculty</label>
+                <input id="department" name="department" type="text" value="{{ department }}" />
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="booking-duration">Default booking duration (hours)</label>
+                <input id="booking-duration" name="booking_duration" type="number" min="1" value="{{ booking_duration }}" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Preferred facility categories</label>
+              <div class="check-row">
+                {% for cat in ['academic','sports','others'] %}
+                <label class="check-pill">
+                  <input type="checkbox" name="pref_categories" value="{{ cat }}" {% if cat in preferred_categories %}checked{% endif %} />
+                  <span>{{ 'Academic' if cat=='academic' else ('Sports' if cat=='sports' else 'Others') }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Notification preferences</label>
+              <div class="check-row">
+                {% for key,label in [('booking_updates','Booking updates'),('facility_reminders','Facility reminders'),('promotions','Promotions')] %}
+                <label class="check-pill">
+                  <input type="checkbox" name="pref_notifications" value="{{ key }}" {% if key in notification_prefs %}checked{% endif %} />
+                  <span>{{ label }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="actions-row">
+              <button class="btn btn-primary" type="submit">Save / Update</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="profile-card">
+          <h2 class="profile-title">Account Settings</h2>
+          <form method="POST" action="/profile/password" class="subform">
+            <div class="grid-2">
+              <div class="field">
+                <label class="field-label" for="current-password">Current password</label>
+                <input id="current-password" name="current_password" type="password" />
+              </div>
+              <div class="field">
+                <label class="field-label" for="new-password">New password</label>
+                <input id="new-password" name="new_password" type="password" />
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label class="field-label" for="confirm-password">Confirm password</label>
+                <input id="confirm-password" name="confirm_password" type="password" />
+              </div>
+              <div class="field" style="align-self:end;">
+                <button class="btn btn-outline" type="submit">Change Password</button>
+              </div>
+            </div>
+          </form>
+          <p class="help-text">Password change uses demo storage (not connected to users table in this repo version).</p>
+        </section>
+      </div>
+
+      <div class="profile-right">
+        <section class="profile-card">
+          <h2 class="profile-title">Booking Stats</h2>
+          <div class="stat-grid">
+            <div class="stat">
+              <div class="stat-num">{{ total_bookings }}</div>
+              <div class="stat-label">Total bookings</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">{{ favorite_count }}</div>
+              <div class="stat-label">Favorite facilities</div>
+            </div>
+          </div>
+
+          <div class="subsection-title">Favorite facilities</div>
+          <div class="favorites">
+            {% if favorites %}
+              {% for f in favorites %}
+                <div class="favorite-item">
+                  <span class="favorite-dot"></span>
+                  <div class="favorite-name">{{ f }}</div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty">No favorites yet.</div>
+            {% endif %}
+          </div>
+
+          <div class="subsection-title">Quick actions</div>
+<div class="quick-actions">
+            <button class="btn btn-primary" type="button" onclick="location.href='/dashboard'">Browse Facilities</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <script>
+      // Profile dropdown
+      const profileBtn = document.querySelector('.profile-btn');
+      const menu = document.querySelector('.profile-menu');
+      if (profileBtn && menu) {
+        profileBtn.addEventListener('click', () => menu.classList.toggle('open'));
+        document.addEventListener('click', (e) => {
+          if (!profileBtn.contains(e.target)) menu.classList.remove('open');
+        });
+      }
+
+      // Photo preview (demo)
+      const input = document.getElementById('photo-input');
+      const img = document.getElementById('profile-photo');
+      if (input && img) {
+        input.addEventListener('change', () => {
+          const file = input.files && input.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => { img.src = reader.result; };
+          reader.readAsDataURL(file);
+        });
+      }
+    </script>
+  </main>
+</body>
+</html>
+
+>>>>>>> 8fc768d7590f3365162497c2d58326c3a04faecf

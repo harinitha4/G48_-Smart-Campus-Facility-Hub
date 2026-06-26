@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* RESET */
 *{
     margin:0;
@@ -73,4 +74,81 @@ body.dashboard-page{
     padding:10px;
     margin:10px 0;
     border-radius:8px;
+=======
+/* RESET */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+/* ================= REGISTER ================= */
+body.register-page{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:white;
+}
+
+/* ================= LOGIN ================= */
+body.login-page{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#141e30,#243b55);
+    color:white;
+}
+
+/* ================= DASHBOARD ================= */
+body.dashboard-page{
+    display:flex;
+    background:#f2f2f2;
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+    width:220px;
+    height:100vh;
+    background:#0b1f4d;
+    color:white;
+    padding:15px;
+    position:fixed;
+}
+
+.sidebar a{
+    display:block;
+    color:white;
+    text-decoration:none;
+    padding:10px;
+    margin:5px 0;
+}
+
+/* MAIN */
+.main{
+    margin-left:220px;
+    padding:20px;
+    width:100%;
+}
+
+/* SECTIONS */
+.section{
+    display:none;
+}
+
+.section.active{
+    display:block;
+}
+
+/* CARDS */
+.card{
+    background:white;
+    padding:10px;
+    margin:10px 0;
+    border-radius:8px;
+>>>>>>> 8fc768d7590f3365162497c2d58326c3a04faecf
 }
