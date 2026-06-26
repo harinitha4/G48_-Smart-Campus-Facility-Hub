@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* ── Header ── */
+  .act-header { margin-bottom:24px; }
+  .act-header h1 { font-size:26px; font-weight:800; color:#f0fafa; margin:0 0 4px; }
+  .act-header p  { color:#7ab8c0; font-size:13px; margin:0; }
+
+  /* ── Panel ── */
+  .panel { background:#0d4a56; border:1px solid rgba(0,196,204,0.15); border-radius:16px; padding:22px 24px; }
+  .panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .panel-title  { font-size:15px; font-weight:700; color:#f0fafa; }
+  .panel-badge  { background:rgba(0,196,204,0.15); color:#00c4cc; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; border:1px solid rgba(0,196,204,0.2); }
+
+  /* ── Stat strip ── */
+  .stat-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+  @media(max-width:900px){ .stat-strip{ grid-template-columns:repeat(2,1fr); } }
+  .stat-card { background:rgba(255,255,255,0.03); border:1px solid rgba(0,196,204,0.12); border-radius:14px; padding:16px; }
+  .stat-card .num { font-size:28px; font-weight:900; color:#00c4cc; line-height:1; }
+  .stat-card .lbl { font-size:11px; color:#7ab8c0; font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin-top:4px; }
+  .stat-card.orange .num { color:#fb923c; }
+  .stat-card.purple .num { color:#a78bfa; }
+  .stat-card.green  .num { color:#4ade80; }
+
+  /* ── Filter pills ── */
+  .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .fbtn {
+    padding: 7px 16px !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(0,196,204,0.35) !important;
+    background: rgba(0,196,204,0.06) !important;
+    color: #9cdcfe !important;
+    cursor: pointer; font-weight:600; font-size:13px;
+    width: auto !important; margin-top: 0 !important;
+    display:inline-flex; align-items:center; gap:6px;
+    transition: background .18s;
+  }
+  .fbtn.active { background:rgba(0,196,204,0.22) !important; color:#00c4cc !important; border-color:rgba(0,196,204,0.65) !important; }
+  .fbtn .fdot { width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
+  .fdot-bookings  { background:#00c4cc; }
+  .fdot-users     { background:#a78bfa; }
+  .fdot-facilities{ background:#4ade80; }
+  .fdot-system    { background:#2de0e8; }
+  .fdot-alerts    { background:#fb923c; }
+
+  /* ── Day group ── */
+  .day-block { margin-bottom:22px; }
+  .day-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(0,196,204,0.12); }
+  .day-title { font-size:12px; color:#7ab8c0; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+
+  /* ── Activity cards ── */
+  .cards { display:flex; flex-direction:column; gap:8px; }
+  .card {
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.06);
+    background:rgba(255,255,255,0.03);
+    padding:13px 16px;
+    display:flex; gap:14px; align-items:flex-start;
+    transition: background .15s;
+  }
+  .card:hover { background:rgba(0,196,204,0.05); }
+  .dot { width:10px; height:10px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+  .c-bookings  { background:#00c4cc; box-shadow:0 0 8px rgba(0,196,204,0.5); }
+  .c-users     { background:#a78bfa; box-shadow:0 0 8px rgba(167,139,250,0.5); }
+  .c-facilities{ background:#4ade80; box-shadow:0 0 8px rgba(74,222,128,0.5); }
+  .c-system    { background:#2de0e8; box-shadow:0 0 8px rgba(45,224,232,0.5); }
+  .c-alerts    { background:#fb923c; box-shadow:0 0 8px rgba(251,146,60,0.5); }
+
+  .card-body { flex:1; min-width:0; }
+  .card-title { font-size:13px; color:#f0fafa; font-weight:700; margin:0 0 3px; }
+  .card-sub   { font-size:12px; color:#7ab8c0; line-height:1.4; margin:0; }
+  .card-meta  { margin-left:auto; font-size:11px; color:#7ab8c0; font-weight:700; white-space:nowrap; padding-left:12px; flex-shrink:0; }
+
+  .status-pill {
+    display:inline-block; font-size:11px; font-weight:700;
+    padding:2px 8px; border-radius:20px; margin-left:6px;
+  }
+  .sp-pending  { background:rgba(251,146,60,0.15); color:#fb923c; border:1px solid rgba(251,146,60,0.35); }
+  .sp-approved { background:rgba(74,222,128,0.12); color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
+  .sp-canceled { background:rgba(148,163,184,0.12); color:#94a3b8; border:1px solid rgba(148,163,184,0.25); }
+
+  .card.hidden { display:none; }
+  .empty-day   { color:rgba(255,255,255,0.3); font-size:13px; padding:10px 0; text-align:center; }
+</style>
+
+<div class="act-header">
+  <h1>⚡ Recent Activity</h1>
+  <p>Live feed of bookings, users, and system events.</p>
+</div>
+
+<!-- Stats -->
+<div class="stat-strip">
+  <div class="stat-card">
+    <div class="num">{{ total_bookings_today }}</div>
+    <div class="lbl">Bookings Today</div>
+  </div>
+  <div class="stat-card orange">
+    <div class="num">{{ pending }}</div>
+    <div class="lbl">Pending Approval</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="num">{{ total_users }}</div>
+    <div class="lbl">Total Users</div>
+  </div>
+  <div class="stat-card green">
+    <div class="num">{{ total_facilities }}</div>
+    <div class="lbl">Facilities</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">Activity Feed</div>
+    <div class="panel-badge">● Live</div>
+  </div>
+
+  <!-- Filter pills -->
+  <div class="filters">
+    <button class="fbtn active" type="button" data-type="all">All</button>
+    <button class="fbtn" type="button" data-type="Bookings"><span class="fdot fdot-bookings"></span>Bookings</button>
+    <button class="fbtn" type="button" data-type="Users"><span class="fdot fdot-users"></span>Users</button>
+    <button class="fbtn" type="button" data-type="Facilities"><span class="fdot fdot-facilities"></span>Facilities</button>
+    <button class="fbtn" type="button" data-type="System"><span class="fdot fdot-system"></span>System</button>
+    <button class="fbtn" type="button" data-type="Alerts"><span class="fdot fdot-alerts"></span>Alerts</button>
+  </div>
+
+  <div id="activity">
+
+    <!-- TODAY bookings -->
+    {% set today_bookings = bookings | selectattr('date', 'equalto', today) | list %}
+    {% if today_bookings %}
+    <div class="day-block">
+      <div class="day-head">
+        <div class="day-title">Today</div>
+        <div class="day-title" style="opacity:.7;">Newest</div>
+      </div>
+      <div class="cards">
+        {% for b in today_bookings %}
+        <div class="card" data-type="Bookings">
+          <div class="dot c-bookings"></div>
+          <div class="card-body">
+            <div class="card-title">
+              {{ b['user_name'] }} booked {{ b['facility_name'] }}
+              {% if b['is_approved'] == 0 and b['status'] != 'canceled' %}
+                <span class="status-pill sp-pending">Pending</span>
+              {% elif b['is_approved'] == 1 %}
+                <span class="status-pill sp-approved">Approved</span>
+              {% elif b['status'] == 'canceled' %}
+                <span class="status-pill sp-canceled">Canceled</span>
+              {% endif %}
+            </div>
+            <p class="card-sub">{{ b['date'] }} at {{ b['time'] or '—' }}</p>
+          </div>
+          <div class="card-meta">Booking #{{ b['id'] }}</div>
+        </div>
+        {% endfor %}
+
+        {% if pending > 0 %}
+        <div class="card" data-type="Alerts">
+          <div class="dot c-alerts"></div>
+          <div class="card-body">
+            <div class="card-title">{{ pending }} booking{{ 's' if pending != 1 }} pending approval</div>
+            <p class="card-sub">Review and approve from the Bookings page.</p>
+          </div>
+          <div class="card-meta">Action needed</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- YESTERDAY bookings -->
+    {% set yest_bookings = bookings | selectattr('date', 'equalto', yesterday) | list %}
+    {% if yest_bookings %}
+    <div class="day-block">
+      <div class="day-head">
+        <div class="day-title">Yesterday</div>
+        <div class="day-title" style="opacity:.7;">Recent</div>
+      </div>
+      <div class="cards">
+        {% for b in yest_bookings %}
+        <div class="card" data-type="Bookings">
+          <div class="dot c-bookings"></div>
+          <div class="card-body">
+            <div class="card-title">
+              {{ b['user_name'] }} booked {{ b['facility_name'] }}
+              {% if b['is_approved'] == 1 %}
+                <span class="status-pill sp-approved">Approved</span>
+              {% elif b['status'] == 'canceled' %}
+                <span class="status-pill sp-canceled">Canceled</span>
+              {% else %}
+                <span class="status-pill sp-pending">Pending</span>
+              {% endif %}
+            </div>
+            <p class="card-sub">{{ b['date'] }} at {{ b['time'] or '—' }}</p>
+          </div>
+          <div class="card-meta">Booking #{{ b['id'] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- USERS (recent registrations) -->
+    {% if users %}
+    <div class="day-block">
+      <div class="day-head">
+        <div class="day-title">Registered Users</div>
+        <div class="day-title" style="opacity:.7;">{{ users|length }} total shown</div>
+      </div>
+      <div class="cards">
+        {% for u in users[:5] %}
+        <div class="card" data-type="Users">
+          <div class="dot c-users"></div>
+          <div class="card-body">
+            <div class="card-title">{{ u['name'] or 'Unknown' }} registered</div>
+            <p class="card-sub">{{ u['email'] or '—' }} · {{ u['role'] or 'student' }}</p>
+          </div>
+          <div class="card-meta">User #{{ u['id'] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- FACILITIES -->
+    {% if facilities %}
+    <div class="day-block">
+      <div class="day-head">
+        <div class="day-title">Facilities</div>
+        <div class="day-title" style="opacity:.7;">{{ facilities|length }} shown</div>
+      </div>
+      <div class="cards">
+        {% for f in facilities %}
+        <div class="card" data-type="Facilities">
+          <div class="dot c-facilities"></div>
+          <div class="card-body">
+            <div class="card-title">{{ f['name'] }}</div>
+            <p class="card-sub">📍 {{ f['location'] or '—' }}</p>
+          </div>
+          <div class="card-meta">Facility #{{ f['id'] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- OLDER bookings -->
+    {% set older = bookings | rejectattr('date', 'equalto', today) | rejectattr('date', 'equalto', yesterday) | list %}
+    {% if older %}
+    <div class="day-block">
+      <div class="day-head">
+        <div class="day-title">Earlier</div>
+        <div class="day-title" style="opacity:.7;">Archive</div>
+      </div>
+      <div class="cards">
+        {% for b in older[:5] %}
+        <div class="card" data-type="Bookings">
+          <div class="dot c-bookings"></div>
+          <div class="card-body">
+            <div class="card-title">{{ b['user_name'] }} booked {{ b['facility_name'] }}</div>
+            <p class="card-sub">{{ b['date'] }} at {{ b['time'] or '—' }}</p>
+          </div>
+          <div class="card-meta">Booking #{{ b['id'] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if not bookings and not users and not facilities %}
+    <div class="empty-day">No activity to display yet.</div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.fbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const type = btn.dataset.type;
+      document.querySelectorAll('#activity .card').forEach(card => {
+        if (type === 'all') card.classList.remove('hidden');
+        else card.classList.toggle('hidden', card.dataset.type !== type);
+      });
+    });
+  });
+</script>
+{% endblock %}
