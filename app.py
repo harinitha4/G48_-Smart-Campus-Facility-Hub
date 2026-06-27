@@ -304,7 +304,7 @@ def notifications():
 
 
 # ============================================================
-# MAIN DASHBOARD ROUTES  Harinitha
+# MAIN DASHBOARD ROUTES (scf hub - Harinitha)
 # ============================================================
 @app.route('/')
 def index():
@@ -535,7 +535,7 @@ def facility_booking(facility_id):
 
 
 # ============================================================
-# STUDENT ROUTES  Taniiska
+# STUDENT ROUTES (smart-hub - Bavisshaa)
 # ============================================================
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -728,7 +728,7 @@ def logout():
 
 
 # ============================================================
-# ADMIN ROUTES  Bavisshaa
+# ADMIN ROUTES (smart campus - Taniiska)
 # ============================================================
 @app.route("/admin")
 def admin_dashboard():
