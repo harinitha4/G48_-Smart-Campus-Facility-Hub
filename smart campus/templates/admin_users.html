@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 {% extends "base.html" %}
 
@@ -20,3 +21,27 @@
     {% endfor %}
 </table>
 {% endblock %}
+=======
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+<h1>All Users</h1>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Role</th>
+    </tr>
+
+    {% for user in users %}
+    <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.role }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+>>>>>>> 8fc768d7590f3365162497c2d58326c3a04faecf
