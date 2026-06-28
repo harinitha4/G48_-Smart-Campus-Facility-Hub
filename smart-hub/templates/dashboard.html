@@ -24,22 +24,68 @@
 
       <a class="nav-link" href="/profile">My Profile</a>
 
-<a class="nav-link" href="/notifications">Notifications</a>
+      <a class="nav-link" href="/notifications">Notifications</a>
       <a class="nav-link" href="/help">Help</a>
       <a class="nav-link" href="/logout">Logout</a>
     </nav>
 
     <div class="sidebar-cta">
-      <div class="calendar-card">
-        <div class="calendar-head">
-          <span class="calendar-dot"></span>
-          <div>
-            <div class="calendar-title">Book Your Spot</div>
-            <div class="calendar-sub">Next 7 days</div>
+      <div class="notices-card" aria-label="Campus Notices & Announcements">
+        <div class="notices-head">
+          <span class="notices-dot" aria-hidden="true"></span>
+          <div class="notices-titles">
+            <div class="notices-title">Campus Updates</div>
+            <div class="notices-sub">Live Announcements</div>
           </div>
         </div>
-        <div class="calendar-grid" aria-hidden="true"></div>
-        <button class="cta-button" type="button">Explore Facilities</button>
+
+        <div class="notices-list" role="list">
+          <!-- Notice 1: Gym Schedule -->
+          <div class="notice-item notice-amber" role="listitem">
+            <div class="notice-accent" aria-hidden="true"></div>
+            <div class="notice-body">
+              <div class="notice-title">Gym Schedule</div>
+              <div class="notice-desc">Gym Monday &amp; Thursday is for <b>male</b>. Tuesday &amp; Friday is for <b>female</b>. Wednesday is <b>mix</b>.</div>
+            </div>
+          </div>
+
+          <!-- Notice 2: Hours -->
+          <div class="notice-item notice-teal" role="listitem">
+            <div class="notice-accent" aria-hidden="true"></div>
+            <div class="notice-body">
+              <div class="notice-title">Study Space Hours</div>
+              <div class="notice-desc">Study space is open <b>24hrs</b>.</div>
+            </div>
+          </div>
+
+          <!-- Notice 3: Instructions -->
+          <div class="notice-item notice-blue" role="listitem">
+            <div class="notice-accent" aria-hidden="true"></div>
+            <div class="notice-body">
+              <div class="notice-title">Library Key Collection</div>
+              <div class="notice-desc">Collect library meeting room keys at the <b>library counter</b>.</div>
+            </div>
+          </div>
+
+          <!-- Notice 4: Rules -->
+          <div class="notice-item notice-amber" role="listitem">
+            <div class="notice-accent" aria-hidden="true"></div>
+            <div class="notice-body">
+              <div class="notice-title">Facility Cleanliness</div>
+              <div class="notice-desc">Students must always keep the facilities clean.</div>
+            </div>
+          </div>
+
+          <!-- Notice 5: Dress Code -->
+          <div class="notice-item notice-amber" role="listitem">
+            <div class="notice-accent" aria-hidden="true"></div>
+            <div class="notice-body">
+              <div class="notice-title">Dress Code</div>
+              <div class="notice-desc">Students are required to wear suitable clothing for each facility.</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </aside>
