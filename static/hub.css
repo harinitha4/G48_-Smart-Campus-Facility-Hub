@@ -163,6 +163,26 @@ body.register-page .container p{
     margin-top:10px;
 }
 
+/* ================= FORGOT PASSWORD (login) ================= */
+.forgot-link{
+    display:block;
+    margin-top:6px;
+    font-size:0.9rem;
+    font-weight:700;
+    color: rgba(0,229,255,0.95);
+    text-decoration:none;
+    text-align:left;
+    opacity:0.92;
+    transition:opacity 0.2s ease, text-shadow 0.2s ease, color 0.2s ease;
+}
+.forgot-link:hover{
+    opacity:1;
+    color:#00f2fe;
+    text-shadow:0 0 14px rgba(0,242,254,0.45);
+    text-decoration:underline;
+}
+
+
 /* Flash messages (login/register) */
 .flash-messages{
     margin:12px 0 4px;

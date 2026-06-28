@@ -634,6 +634,69 @@ def login():
     return render_template("user_login.html")
 
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Forgot password flow for lab project.
+
+    - GET: show email input.
+    - POST (stage=email): verify email exists, then reveal reset password fields.
+    - POST (stage=reset): validate match, update password with generate_password_hash,
+      flash success and redirect to /login.
+    """
+
+    if request.method == 'GET':
+        return render_template('forgot-password.html', stage='email', email='')
+
+    action = request.form.get('action', '').strip()
+    email = (request.form.get('email') or '').strip().lower()
+
+    # Stage 1: submit email
+    if action == 'request':
+        if not email:
+            flash('Please provide your email address.')
+            return redirect('/forgot-password')
+
+        conn = get_db()
+        user = conn.execute('SELECT id FROM users WHERE email=?', (email,)).fetchone()
+        conn.close()
+
+        if not user:
+            flash('Account not found for this email.')
+            return redirect('/forgot-password')
+
+        # Email exists -> show reset inputs
+        return render_template('forgot-password.html', stage='reset', email=email)
+
+    # Stage 2: update password
+    if action == 'update':
+        new_password = request.form.get('new_password') or ''
+        confirm_password = request.form.get('confirm_password') or ''
+
+        if not email:
+            flash('Missing email. Please start again.')
+            return redirect('/forgot-password')
+        if not new_password or not confirm_password:
+            flash('Please fill in all password fields.')
+            return render_template('forgot-password.html', stage='reset', email=email)
+        if new_password != confirm_password:
+            flash('Passwords do not match.')
+            return render_template('forgot-password.html', stage='reset', email=email)
+
+        hashed = generate_password_hash(new_password)
+
+        conn = get_db()
+        conn.execute('UPDATE users SET password=? WHERE email=?', (hashed, email))
+        conn.commit()
+        conn.close()
+
+        flash('Password updated successfully! Please login.')
+        return redirect('/login')
+
+    # Fallback: if action is missing, go back to email form
+    return redirect('/forgot-password')
+
+
+
 
 
 
