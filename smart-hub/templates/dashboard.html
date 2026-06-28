@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facility Booking Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <div class="brand-mark">🏫</div>
+        <div class="brand-text">
+          <div class="brand-name">Smart Campus</div>
+          <div class="brand-sub">Facility Hub</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-link active" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/bookings">My Bookings</a>
+
+      <a class="nav-link" href="/profile">My Profile</a>
+
+<a class="nav-link" href="/notifications">Notifications</a>
+      <a class="nav-link" href="/help">Help</a>
+      <a class="nav-link" href="/logout">Logout</a>
+    </nav>
+
+    <div class="sidebar-cta">
+      <div class="calendar-card">
+        <div class="calendar-head">
+          <span class="calendar-dot"></span>
+          <div>
+            <div class="calendar-title">Book Your Spot</div>
+            <div class="calendar-sub">Next 7 days</div>
+          </div>
+        </div>
+        <div class="calendar-grid" aria-hidden="true"></div>
+        <button class="cta-button" type="button">Explore Facilities</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="welcome">
+        <div class="welcome-title">Welcome back, <span id="welcome-name">{{ name }} </span>👋</div>
+        <div class="welcome-sub">Plan ahead and reserve facilities in minutes.</div>
+      </div>
+
+      <div class="top-actions">
+        <div class="bell-wrap">
+          <a href="/notifications" class="icon-btn" aria-label="Notifications" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">
+            <span class="icon">🔔</span>
+            <span class="badge">{{ notification_count if notification_count is not none else 0 }}</span>
+          </a>
+        </div>
+        <div class="profile">
+          <button class="profile-btn" type="button">
+            <span class="avatar">{{ (name[0] if name else 'U')|upper }}</span>
+            <span class="profile-caret">▾</span>
+          </button>
+          <div class="profile-menu" role="menu">
+            <a href="/profile" role="menuitem">My Profile</a>
+            <a href="#" role="menuitem">Settings</a>
+
+            <a href="/logout" role="menuitem">Logout</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <div class="search">
+        <span class="search-icon" aria-hidden="true">🔎</span>
+        <input id="facility-search" type="text" placeholder="Search facilities..." />
+      </div>
+
+      <div class="filters">
+        <label class="sr-only" for="category-select">Category</label>
+        <select id="category-select" class="category-select">
+          <option value="all">All Categories</option>
+          <option value="academic">Academic</option>
+          <option value="sports">Sports</option>
+          <option value="others">Others</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="pills" aria-label="Quick filters">
+      <button class="pill active" data-pill="all" type="button">All</button>
+      <button class="pill" data-pill="academic" type="button">Academic</button>
+      <button class="pill" data-pill="sports" type="button">Sports</button>
+      <button class="pill" data-pill="others" type="button">Others</button>
+    </section>
+
+    <section class="content">
+      <div class="facilities-grid" id="facilities-grid"></div>
+    </section>
+  </main>
+
+  <!-- 360° lightbox modal -->
+  <div id="modal360" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+    <div style="position:relative; width:min(92vw,960px); max-height:88vh;">
+      <button onclick="close360()" style="position:absolute; top:-38px; right:0; background:none; border:none; color:#fff; font-size:22px; cursor:pointer; width:auto; margin-top:0;">✕ Close</button>
+      <img id="img360" src="" alt="360° View" style="max-width:100%; max-height:78vh; border-radius:12px; border:2px solid rgba(0,196,204,0.4); display:block;" />
+      <iframe id="iframe360" src="" frameborder="0" allowfullscreen allow="xr-spatial-tracking; gyroscope; accelerometer" style="width:100%; height:78vh; border-radius:12px; border:2px solid rgba(0,196,204,0.4); display:none;"></iframe>
+      <div id="lbl360" style="text-align:center; color:#7ab8c0; font-size:13px; margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Real facilities from DB
+    const facilities = [
+      {% for f in facilities %}
+      {
+        id: {{ f['id'] }},
+        title: {{ f['name'] | tojson }},
+        location: {{ (f['location'] or '') | tojson }},
+        capacity: {{ f['capacity'] or 0 }},
+        category: {{ (f['category'] or 'others') | tojson }},
+        image: {% if f['image_filenames'] %}"{{ '/static/facility_uploads/' + f['image_filenames'].split(',')[0] }}"{% else %}""{% endif %},
+        view360: {% if f['view_360_filename'] %}{% if f['view_360_filename'].startswith('http') %}{{ f['view_360_filename'] | tojson }}{% else %}{{ ('/static/facility_uploads/' + f['view_360_filename']) | tojson }}{% endif %}{% else %}""{% endif %}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const statusFor = (f) => (f.capacity > 0 && f.capacity <= 5) ? 'Limited' : 'Available';
+    const statusClass = (s) => s === 'Available' ? 'status-available' : 'status-limited';
+    const categoryTagClass = (c) => c === 'academic' ? 'tag-academic' : c === 'sports' ? 'tag-sports' : 'tag-others';
+    const categoryLabel = (c) => c.charAt(0).toUpperCase() + c.slice(1);
+
+    const grid = document.getElementById('facilities-grid');
+    const searchInput = document.getElementById('facility-search');
+    const categorySelect = document.getElementById('category-select');
+    const pills = Array.from(document.querySelectorAll('.pill'));
+
+    let activePill = 'all';
+
+    function render(items) {
+      if (!items.length) {
+        grid.innerHTML = '<p style="color:#7ab8c0; padding:20px;">No facilities found.</p>';
+        return;
+      }
+      grid.innerHTML = items.map(f => {
+        const status = statusFor(f);
+        const thumbStyle = f.image ? `background-image:url(${f.image}); background-size:cover; background-position:center;` : '';
+        const btn360 = f.view360
+          ? `<button class="btn btn-outline" type="button" onclick="open360('${f.view360}','${f.title.replace(/'/g,"\\'")}')">View 360°</button>`
+          : `<button class="btn btn-outline" type="button" style="opacity:.45; cursor:not-allowed;" disabled title="No 360° view available">View 360°</button>`;
+        return `
+          <article class="facility-card" data-category="${f.category}">
+            <div class="thumb" style="${thumbStyle}">
+              <div class="thumb-overlay">
+                <span class="status-badge ${statusClass(status)}">${status}</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <span class="category-tag ${categoryTagClass(f.category)}">${categoryLabel(f.category)}</span>
+              <h3 class="facility-title">${f.title}</h3>
+              <div class="meta">
+                <span class="meta-item" title="Capacity">🧑‍🤝‍🧑 ${f.capacity || '—'}</span>
+              </div>
+              <div class="card-actions">
+                <form method="GET" action="/book/${f.id}" class="book-now-form">
+                  <button class="btn btn-primary" type="submit">Book Now</button>
+                </form>
+                ${btn360}
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    function applyFilters() {
+      const q = (searchInput.value || '').trim().toLowerCase();
+      const selectVal = categorySelect.value;
+      const category = activePill !== 'all' ? activePill : selectVal;
+      const filtered = facilities.filter(f => {
+        const matchesCategory = category === 'all' ? true : f.category === category;
+        const matchesQuery = !q ? true : f.title.toLowerCase().includes(q);
+        return matchesCategory && matchesQuery;
+      });
+      render(filtered);
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+    categorySelect.addEventListener('change', () => {
+      activePill = 'all';
+      pills.forEach(p => p.classList.toggle('active', p.dataset.pill === 'all'));
+      applyFilters();
+    });
+    pills.forEach(p => {
+      p.addEventListener('click', () => {
+        activePill = p.dataset.pill;
+        pills.forEach(x => x.classList.toggle('active', x === p));
+        categorySelect.value = 'all';
+        applyFilters();
+      });
+    });
+
+    render(facilities);
+
+    // 360° lightbox — supports uploaded images and embedded URLs (teliportme, Matterport, etc.)
+    function open360(src, title) {
+      const img = document.getElementById('img360');
+      const frame = document.getElementById('iframe360');
+      const isEmbed = src.startsWith('http');
+      img.style.display = isEmbed ? 'none' : 'block';
+      frame.style.display = isEmbed ? 'block' : 'none';
+      if (isEmbed) frame.src = src;
+      else img.src = src;
+      document.getElementById('lbl360').textContent = title + ' — 360° View';
+      document.getElementById('modal360').style.display = 'flex';
+    }
+    function close360() {
+      document.getElementById('modal360').style.display = 'none';
+      document.getElementById('img360').src = '';
+      document.getElementById('iframe360').src = '';
+    }
+    document.getElementById('modal360').addEventListener('click', function(e) {
+      if (e.target === this) close360();
+    });
+
+    // Profile dropdown
+    const profileBtn = document.querySelector('.profile-btn');
+    const menu = document.querySelector('.profile-menu');
+    if (profileBtn && menu) {
+      profileBtn.addEventListener('click', () => { menu.classList.toggle('open'); });
+      document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target)) menu.classList.remove('open');
+      });
+    }
+
+    // Decorative calendar tiles
+    const cal = document.querySelector('.calendar-grid');
+    if (cal) {
+      const tiles = 28;
+      for (let i = 0; i < tiles; i++) {
+        const d = document.createElement('div');
+        d.className = (i % 7 === 0) ? 'cal-tile cal-accent' : 'cal-tile';
+        cal.appendChild(d);
+      }
+    }
+  </script>
+</body>
+</html>

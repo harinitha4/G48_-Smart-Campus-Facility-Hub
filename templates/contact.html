@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Smart Campus Facilities Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .navbar {
+            position: relative;
+            z-index: 3;
+        }
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .contact-wrapper {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 40px 60px;
+        }
+        .contact-wrapper h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #00E5FF, #40E0D0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .contact-subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 1rem;
+            margin-bottom: 50px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        /* ── Left: Map + Contact Info ── */
+        .contact-left {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .map-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+        }
+        .map-card iframe {
+            width: 100%;
+            height: 280px;
+            border: none;
+            display: block;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(8px);
+        }
+        .info-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #40E0D0;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .info-item:last-child { margin-bottom: 0; }
+        .info-icon {
+            width: 42px; height: 42px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            background: rgba(0,229,255,0.12);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+        .info-text h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.9);
+            margin: 0 0 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .info-text p {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.65);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* ── Right: Form ── */
+        .contact-form {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(0,229,255,0.2);
+            padding: 35px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .contact-form h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #40E0D0;
+            margin-bottom: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.85);
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: rgba(0,229,255,0.55);
+            background: rgba(0,229,255,0.06);
+        }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+        .form-group textarea {
+            height: 140px;
+            resize: none;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #00E5FF, #40E0D0);
+            border: none;
+            color: #064e3b;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,229,255,0.3);
+        }
+        .submit-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 30px rgba(0,229,255,0.45);
+        }
+
+        .flash-msg {
+            color: #4caf50;
+            padding: 12px;
+            background: rgba(76,175,80,0.12);
+            border-radius: 10px;
+            margin-bottom: 22px;
+            border-left: 4px solid #4caf50;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+            .contact-wrapper {
+                padding: 60px 20px 40px;
+            }
+            .contact-wrapper h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="SCF Hub logo icon">
+        </div>
+         <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+<li><a href="{{ url_for('facilities') }}">Facilities</a></li>
+        <li><a href="{{ url_for('bookings_360') }}">Bookings</a></li>
+<li><a href="{{ url_for('contact') }}" class="btn active">Contact</a></li>
+                <li class="dropdown">
+                    <a href="/login" class="btn">Login ▾</a>
+                    <div class="dropdown-content">
+                        <a href="/admin-login">Admin</a>
+                        <a href="/user-login">User</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="contact-wrapper">
+        <h1>Contact Us</h1>
+        <p class="contact-subtitle">Have questions? We'd love to hear from you. Reach out and we'll get back to you shortly.</p>
+
+        <div class="contact-grid">
+            <!-- LEFT: Map + Contact Info -->
+            <div class="contact-left">
+                <div class="map-card">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.1456789012345!2d101.7245!3d2.2495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cd38b8f3c2d6b7%3A0x3e0c8b9a8a5e4c40!2sMultimedia%20University!5e0!3m2!1sen!2smy!4v1690000000000"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="MMU Campus Map">
+                    </iframe>
+                </div>
+
+                <div class="info-card">
+                    <h3>📋 Get in Touch</h3>
+
+                    <div class="info-item">
+                        <div class="info-icon">📍</div>
+                        <div class="info-text">
+                            <h4>Address</h4>
+                            <p>Multimedia University<br>Persiaran Multimedia,<br>63100 Cyberjaya, Malaysia</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📞</div>
+                        <div class="info-text">
+                            <h4>Phone</h4>
+                            <p>+60 11-2439 9093</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">✉️</div>
+                        <div class="info-text">
+                            <h4>Email</h4>
+                            <p>support.scfhub@gmail.com</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">🕐</div>
+                        <div class="info-text">
+                            <h4>Operating Hours</h4>
+                            <p>Monday – Friday: 8:00 AM – 6:00 PM<br>Saturday: 8:00 AM – 1:00 PM<br>Sunday &amp; Public Holidays: Closed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Contact Form -->
+            <div class="contact-form">
+                <h3>✍️ Send Us a Message</h3>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="flash-msg">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form method="POST" action="{{ url_for('contact') }}">
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" name="name" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>MMU Email</label>
+                        <input type="email" name="email" placeholder="yourname@mmu.edu.my" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea name="message" placeholder="Tell us how we can help you..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">🚀 Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="particles-js"></div>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#00d4ff" },
+                "shape": { "type": "circle", "stroke": { "width": 0, "color": "#000000" }, "polygon": { "nb_sides": 5 } },
+                "opacity": { "value": 0.3, "random": false, "anim": { "enable": false, "speed": 1, "opacity_min": 0.1, "sync": false } },
+                "size": { "value": 3, "random": true, "anim": { "enable": false, "speed": 2, "size_min": 0.1, "sync": false } },
+                "line_linked": { "enable": true, "distance": 150, "color": "#00d4ff", "opacity": 0.4, "width": 1 },
+                "move": { "enable": true, "speed": 6, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false, "attract": { "enable": false, "rotateX": 600, "rotateY": 1200 } }
+            },
+            "interactivity": {}
+        });
+    </script>
+</body>
+</html>
+
