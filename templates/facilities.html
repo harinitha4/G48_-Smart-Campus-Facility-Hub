@@ -181,7 +181,7 @@
     <div class="facilities-grid">
         {% set icons = ['🏀','🏢','🎟️','📚','🏋️','🎨','🖥️','🌿'] %}
         {% for f in facilities %}
-        <a class="facility-card" href="/book/{{ f.id }}" style="text-decoration:none; color:inherit;">
+        <a class="facility-card" href="javascript:void(0);" onclick="openStudyModal('{{ f.name }}', '{{ f.image_filenames }}')" style="text-decoration:none;">
             {% set filenames = f.image_filenames.split(',') if f.image_filenames else [] %}
             {% if filenames and filenames[0] %}
             <img src="{{ url_for('static', filename='facility_uploads/' + filenames[0]) }}" alt="{{ f.name }}" class="facility-image">
@@ -195,9 +195,90 @@
         {% else %}
         <p style="color:#666; text-align:center;">No facilities available yet.</p>
         {% endfor %}
+
+        <div id="studyModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeStudyModal()">&times;</span>
+        <h2 id="modalTitle">Facility Gallery</h2>
+        
+        <div class="gallery-container">
+            <div class="gallery-slide">
+                <img id="popupImg" src="" alt="Facility Gallery Image">
+            </div>
+            <a class="prev" onclick="changePopupImage(-1)">&#10094;</a>
+            <a class="next" onclick="changePopupImage(1)">&#10095;</a>
+        </div>
+        
+        <div id="imageCounter">1 / 1</div>
     </div>
+</div>
 
+<<script>
+    let activeImages = [];
+    let activeIndex = 0;
 
+    function openStudyModal(facilityName, rawImageFilenames) {
+        document.getElementById("modalTitle").innerText = facilityName;
+
+        // Force the study space to use your newly renamed images
+        if (facilityName.toLowerCase().includes("study")) {
+            activeImages = ["study_1.png", "study_2.png", "study_3.png"];
+        } else {
+            if (rawImageFilenames && rawImageFilenames.trim() !== "") {
+                activeImages = rawImageFilenames.split(',');
+            } else {
+                activeImages = [];
+            }
+        }
+
+        activeIndex = 0;
+        updatePopupDisplay();
+        document.getElementById("studyModal").style.display = "flex";
+    }
+
+    function closeStudyModal() {
+        document.getElementById("studyModal").style.display = "none";
+    }
+
+    function changePopupImage(step) {
+        if (activeImages.length <= 1) return;
+
+        activeIndex += step;
+        if (activeIndex >= activeImages.length) {
+            activeIndex = 0;
+        } else if (activeIndex < 0) {
+            activeIndex = activeImages.length - 1;
+        }
+        updatePopupDisplay();
+    }
+
+    function updatePopupDisplay() {
+        const imgElement = document.getElementById("popupImg");
+        const counterElement = document.getElementById("imageCounter");
+
+        if (activeImages.length > 0) {
+            // This reads the files straight from your main static/ folder
+            imgElement.src = "/static/" + activeImages[activeIndex].trim();
+            counterElement.innerText = `${activeIndex + 1} / ${activeImages.length}`;
+        } else {
+            imgElement.src = "/static/logo.png";
+            counterElement.innerText = "0 / 0";
+        }
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("studyModal");
+        if (event.target === modal) {
+            closeStudyModal();
+        }
+    }
+</script>
+        const modal = document.getElementById("studyModal");
+        if (event.target === modal) {
+            closeStudyModal();
+        }
+    }
+</script>
 
 </body>
 </html>
