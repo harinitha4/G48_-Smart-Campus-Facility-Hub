@@ -312,9 +312,7 @@ def index():
     conn = get_db()
 
     total_bookings = conn.execute("SELECT COUNT(*) FROM bookings").fetchone()[0]
-    total_capacity = conn.execute(
-        "SELECT COALESCE(SUM(capacity), 0) FROM facilities WHERE capacity > 0"
-    ).fetchone()[0]
+    avg_booking_time = 120
     total_users = conn.execute(
         "SELECT COUNT(*) FROM users WHERE role='student'"
     ).fetchone()[0]
@@ -348,12 +346,17 @@ def index():
         return '🏛️'
 
     def _badge(capacity, booked):
-        if not capacity:
-            return 'Open'
-        avail = max(0, capacity - booked)
-        if avail == 0:
-            return 'Full'
-        return f'{avail} Left' if avail <= 3 else f'{avail} Free'
+         # If capacity isn't set or is 0, consider it closed
+         if not capacity:
+             return "Closed"
+         # Calc available slots
+         avail = capacity - booked
+         if avail <= 0:
+             return 'Closed'
+         else:
+             return 'Open'
+
+    total_capacity = sum(f['capacity'] or 0 for f in facilities_raw)
 
     facility_cards = [
         {
