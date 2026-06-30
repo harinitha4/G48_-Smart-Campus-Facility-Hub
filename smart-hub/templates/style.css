@@ -37,7 +37,7 @@ body.dashboard-page{
 .sidebar{
     width:220px;
     height:100vh;
-    background:#0b1f4d;
+    background: linear-gradient(to bottom, #00d2ff, #40E0D0);
     color:white;
     padding:15px;
     position:fixed;
