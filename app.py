@@ -538,7 +538,7 @@ def facility_booking(facility_id):
 
 
 # ============================================================
-# STUDENT ROUTES (smart-hub - Bavisshaa)
+# STUDENT ROUTES (smartcampus  - Bavisshaa)
 # ============================================================
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -816,15 +816,32 @@ def edit_booking(id):
     return render_template("edit_booking.html", booking=booking)
 
 
-@app.route("/admin/approve-booking/<int:id>")
+@app.route("/admin/approve-booking/<int:id>", methods=["POST", "GET"])
 def approve_booking(id):
     guard = require_admin()
-    if guard: return guard
+    if guard: 
+        return guard
+    
     conn = get_db()
     conn.execute("UPDATE bookings SET is_approved=1 WHERE id=?", (id,))
     conn.commit()
     conn.close()
+    
     flash("Booking approved!")
+    return redirect("/admin/bookings")
+
+@app.route("/admin/reject-booking/<int:id>", methods=["POST"])
+def reject_booking(id):
+    guard = require_admin()
+    if guard: 
+        return guard
+    
+    conn = get_db()
+    conn.execute("UPDATE bookings SET is_approved=0, status='rejected' WHERE id=?", (id,))
+    conn.commit()
+    conn.close()
+    
+    flash("Booking rejected!")
     return redirect("/admin/bookings")
 
 
