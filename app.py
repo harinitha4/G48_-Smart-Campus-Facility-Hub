@@ -731,7 +731,7 @@ def logout():
 
 
 # ============================================================
-# ADMIN ROUTES (smart campus - Taniiska)
+# ADMIN ROUTES (smart campus - bavisshaa)
 # ============================================================
 @app.route("/admin")
 def admin_dashboard():
