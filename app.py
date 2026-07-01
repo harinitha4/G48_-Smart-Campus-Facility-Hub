@@ -851,8 +851,19 @@ def admin_facilities():
     if guard: return guard
     conn = get_db()
     facilities = conn.execute("SELECT * FROM facilities").fetchall()
+
+    # Add badge info for each facility
+    facilities_with_badges = []
+    for f in facilities:
+        booked_count = conn.execute(
+            "SELECT COUNT(*) as cnt FROM bookings WHERE facility_id=? AND is_approved=1",
+            (f["id"],)
+        ).fetchone()["cnt"]
+        badge = _badge(f["capacity"], booked_count)
+        facilities_with_badges.append({**f, "badge": badge})
+
     conn.close()
-    return render_template("admin_facilities.html", facilities=facilities)
+    return render_template("admin_facilities.html", facilities=facilities_with_badges)
 
 
 @app.route("/admin/add-facility", methods=["GET", "POST"])
