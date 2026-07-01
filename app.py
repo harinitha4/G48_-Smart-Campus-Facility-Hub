@@ -485,6 +485,30 @@ def facility_booking(facility_id):
             flash("Please provide booking date and start time")
             return redirect(url_for("facility_booking", facility_id=facility_id))
 
+        # Time validation (server-side)
+        # If booking is for today, start time must be strictly after the current Malaysia time.
+        now = malaysia_now()
+
+        try:
+            if not booking_date or not duration_from:
+                raise ValueError("Missing booking fields")
+
+            # booking_date: YYYY-MM-DD, duration_from: HH:MM
+            selected_dt = datetime.strptime(
+                f"{booking_date} {duration_from}",
+                "%Y-%m-%d %H:%M",
+            )
+        except Exception:
+            flash("Invalid date/time format")
+            return redirect(url_for("facility_booking", facility_id=facility_id))
+
+        if booking_date == now.date().isoformat() and selected_dt <= now.replace(second=0, microsecond=0):
+            flash("Cannot book: for today, the start time must be after the current Malaysia time.")
+            return redirect(url_for("facility_booking", facility_id=facility_id))
+
+
+
+
         # Resolve current logged-in user; if not logged in, best-effort by student_id
         user_id = session.get("user_id")
         if user_id is None:
