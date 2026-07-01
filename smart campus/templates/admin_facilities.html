@@ -9,51 +9,67 @@
 </a>
 
 <table>
-   <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Location</th>
-    <th>Pictures</th>
-    <th>Description</th>
-    <th>Status</th>
-    <th>Actions</th>
-   </tr>
-   {% for facility in facilities %}
-   <tr>
-       <td>{{ facility.id }}</td>
-       <td>{{ facility.name }}</td>
-       <td>{{ facility.location }}</td>
-       <td>
-           {% set imgs = (facility.image_filenames or '').split(',') if facility.image_filenames else [] %}
-           {% if imgs and imgs[0] %}
-               <div style="display:flex; gap:8px; flex-wrap:wrap; max-width: 260px;">
-                   {% for img in imgs[:3] %}
-                       <img src="{{ url_for('static', filename='facility_uploads/' ~ img) }}" alt="{{ facility.name }}" style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid rgba(156,220,254,0.15);" />
-                   {% endfor %}
-               </div>
-           {% else %}
-               <span style="color:#6b7a8a;">No image</span>
-           {% endif %}
-       </td>
-       <td>{{ facility.description }}</td>
-       <td>
-           {% if facility.badge.startswith('Open') %}
-               <span style="background:rgba(76,175,80,0.15); color:#4caf50; padding:4px 10px; border-radius:6px; font-weight:600;">
-                   {{ facility.badge }}
-               </span>
-           {% else %}
-               <span style="background:rgba(239,68,68,0.15); color:#f87171; padding:4px 10px; border-radius:6px; font-weight:600;">
-                   {{ facility.badge }}
-               </span>
-           {% endif %}
-       </td>
-       <td>
-           <div style="display:flex; gap:8px; align-items:center;">
-               <a href="/admin/edit-facility/{{ facility.id }}" ...>✏️ Edit</a>
-               <a href="/admin/delete-facility/{{ facility.id }}" onclick="return confirm('Delete this facility?')" ...>🗑️ Delete</a>
-           </div>
-       </td>
-   </tr>
-   {% endfor %}
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Pictures</th>
+        <th>Description</th>
+        <th>Category</th> <th>Actions</th>
+    </tr>
+    {% for facility in facilities %}
+    <tr>
+        <td>{{ facility.id }}</td>
+        <td>{{ facility.name }}</td>
+        <td>{{ facility.location }}</td>
+        
+        <td> 
+            {% set imgs = (facility.image_filenames or '').split(',') if facility.image_filenames else [] %}
+            {% if imgs and imgs[0] %}
+                <div style="display:flex; gap:8px; flex-wrap:wrap; max-width: 260px;">
+                    {% for img in imgs[:3] %}
+                        <img src="{{ url_for('static', filename='facility_uploads/' ~ img) }}" alt="{{ facility.name }}" style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid rgba(156,220,254,0.15);" />
+                    {% endfor %}
+                </div>
+            {% else %}
+                <span style="color:#6b7a8a;">No image</span>
+            {% endif %}
+        </td>
+        
+        <td>{{ facility.description }}</td>
+        
+        <td>
+            <span class="badge" style="padding: 4px 8px; background: rgba(156,220,254,0.15); border-radius: 4px;">
+                {{ facility.category }}
+            </span>
+        </td>
+ 
+        <td>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <a href="/admin/edit-facility/{{ facility.id }}"
+                   style="display:inline-flex; align-items:center; gap:6px;
+                          padding:6px 14px; border-radius:8px;
+                          background:rgba(0,196,204,0.12); border:1px solid rgba(0,196,204,0.35);
+                          color:#2de0e8; text-decoration:none; font-size:13px; font-weight:600;
+                          transition:background 0.2s, border-color 0.2s;"
+                   onmouseover="this.style.background='rgba(0,196,204,0.25)';this.style.borderColor='rgba(0,196,204,0.6)'"
+                   onmouseout="this.style.background='rgba(0,196,204,0.12)';this.style.borderColor='rgba(0,196,204,0.35)'">
+                    ✏️ Edit
+                </a>
+                <a href="/admin/delete-facility/{{ facility.id }}"
+                   onclick="return confirm('Delete this facility?')"
+                   style="display:inline-flex; align-items:center; gap:6px;
+                          padding:6px 14px; border-radius:8px;
+                          background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35);
+                          color:#f87171; text-decoration:none; font-size:13px; font-weight:600;
+                          transition:background 0.2s, border-color 0.2s;"
+                   onmouseover="this.style.background='rgba(239,68,68,0.25)';this.style.borderColor='rgba(239,68,68,0.6)'"
+                   onmouseout="this.style.background='rgba(239,68,68,0.12)';this.style.borderColor='rgba(239,68,68,0.35)'">
+                    🗑️ Delete
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
 </table>
 {% endblock %}

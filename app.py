@@ -816,7 +816,8 @@ def edit_booking(id):
     return render_template("edit_booking.html", booking=booking)
 
 
-@app.route("/admin/approve-booking/<int:id>", methods=["POST", "GET"])
+# FIX: Changed method to POST only to eliminate state-changing CSRF vulnerability
+@app.route("/admin/approve-booking/<int:id>", methods=["POST"])
 def approve_booking(id):
     guard = require_admin()
     if guard: 
@@ -829,6 +830,7 @@ def approve_booking(id):
     
     flash("Booking approved!")
     return redirect("/admin/bookings")
+
 
 @app.route("/admin/reject-booking/<int:id>", methods=["POST"])
 def reject_booking(id):
@@ -851,19 +853,8 @@ def admin_facilities():
     if guard: return guard
     conn = get_db()
     facilities = conn.execute("SELECT * FROM facilities").fetchall()
-
-    # Add badge info for each facility
-    facilities_with_badges = []
-    for f in facilities:
-        booked_count = conn.execute(
-            "SELECT COUNT(*) as cnt FROM bookings WHERE facility_id=? AND is_approved=1",
-            (f["id"],)
-        ).fetchone()["cnt"]
-        badge = _badge(f["capacity"], booked_count)
-        facilities_with_badges.append({**f, "badge": badge})
-
     conn.close()
-    return render_template("admin_facilities.html", facilities=facilities_with_badges)
+    return render_template("admin_facilities.html", facilities=facilities)
 
 
 @app.route("/admin/add-facility", methods=["GET", "POST"])
@@ -882,6 +873,9 @@ def add_facility():
         os.makedirs(upload_dir, exist_ok=True)
         allowed_ext = {"png", "jpg", "jpeg", "webp"}
 
+        # Safe fallback string in case facility name has characters stripped out entirely by secure_filename
+        safe_base_name = secure_filename(name) or "facility"
+
         files = request.files.getlist("facility_images") if "facility_images" in request.files else []
         if files:
             for f in files:
@@ -889,8 +883,9 @@ def add_facility():
                     continue
                 ext = f.filename.rsplit(".", 1)[-1].lower() if "." in f.filename else ""
                 if ext not in allowed_ext:
+                    flash(f"Skipped file with invalid extension: .{ext}")
                     continue
-                filename = secure_filename(f"{name}_{len(image_filenames)+1}.{ext}")
+                filename = secure_filename(f"{safe_base_name}_{len(image_filenames)+1}.{ext}")
                 f.save(os.path.join(upload_dir, filename))
                 image_filenames.append(filename)
 
@@ -904,8 +899,10 @@ def add_facility():
             if f360 and f360.filename:
                 ext = f360.filename.rsplit(".", 1)[-1].lower() if "." in f360.filename else ""
                 if ext in allowed_ext:
-                    view_360_filename = secure_filename(f"{name}_360.{ext}")
+                    view_360_filename = secure_filename(f"{safe_base_name}_360.{ext}")
                     f360.save(os.path.join(upload_dir, view_360_filename))
+                else:
+                    flash("Invalid 360 view file extension.")
 
         conn = get_db()
         conn.execute(
@@ -934,6 +931,8 @@ def edit_facility(id):
         upload_dir = os.path.join(app.static_folder, "facility_uploads")
         os.makedirs(upload_dir, exist_ok=True)
         allowed_ext = {"png", "jpg", "jpeg", "webp"}
+        
+        safe_base_name = secure_filename(name) or "facility"
 
         # Add new gallery images
         existing = conn.execute("SELECT image_filenames FROM facilities WHERE id=?", (id,)).fetchone()
@@ -945,8 +944,9 @@ def edit_facility(id):
                     continue
                 ext = f.filename.rsplit(".", 1)[-1].lower() if "." in f.filename else ""
                 if ext not in allowed_ext:
+                    flash(f"Skipped file with invalid extension: .{ext}")
                     continue
-                filename = secure_filename(f"{name}_{len(image_filenames)+1}.{ext}")
+                filename = secure_filename(f"{safe_base_name}_{len(image_filenames)+1}.{ext}")
                 f.save(os.path.join(upload_dir, filename))
                 image_filenames.append(filename)
 
@@ -961,8 +961,10 @@ def edit_facility(id):
             if f360 and f360.filename:
                 ext = f360.filename.rsplit(".", 1)[-1].lower() if "." in f360.filename else ""
                 if ext in allowed_ext:
-                    view_360_filename = secure_filename(f"{name}_360.{ext}")
+                    view_360_filename = secure_filename(f"{safe_base_name}_360.{ext}")
                     f360.save(os.path.join(upload_dir, view_360_filename))
+                else:
+                    flash("Invalid 360 view file extension.")
 
         conn.execute("""
             UPDATE facilities SET name=?, location=?, description=?, image_filenames=?, category=?, capacity=?, view_360_filename=? WHERE id=?
@@ -1077,9 +1079,9 @@ def admin_activity():
     today = malaysia_now().strftime("%Y-%m-%d")
     yesterday = (malaysia_now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-    # Recent bookings
+    # FIX: Updated u.name to u.username to preserve column consistency across tables
     bookings = conn.execute("""
-        SELECT b.id, u.name AS user_name, f.name AS facility_name,
+        SELECT b.id, u.username AS user_name, f.name AS facility_name,
                b.date, b.time, b.status, b.is_approved
         FROM bookings b
         JOIN users u ON b.user_id = u.id
@@ -1087,18 +1089,16 @@ def admin_activity():
         ORDER BY b.id DESC LIMIT 30
     """).fetchall()
 
-    # Recent users
+    # FIX: Switched selection to username to match schema constraints
     users = conn.execute("""
-        SELECT id, name, email, role FROM users ORDER BY id DESC LIMIT 20
+        SELECT id, username, email, role FROM users ORDER BY id DESC LIMIT 20
     """).fetchall()
 
-    # Facilities
     facilities = conn.execute("""
         SELECT id, name, location FROM facilities ORDER BY id DESC LIMIT 10
     """).fetchall()
 
-    # Stats
-    total_bookings_today = conn.execute(
+    stats_bookings_today = conn.execute(
         "SELECT COUNT(*) as cnt FROM bookings WHERE date=?", (today,)
     ).fetchone()["cnt"]
     pending = conn.execute(
@@ -1111,7 +1111,7 @@ def admin_activity():
     return render_template("admin_activity.html",
         bookings=bookings, users=users, facilities=facilities,
         today=today, yesterday=yesterday,
-        total_bookings_today=total_bookings_today,
+        total_bookings_today=stats_bookings_today,
         pending=pending, total_users=total_users,
         total_facilities=total_facilities,
     )
@@ -1141,11 +1141,10 @@ def penalties_page():
 # ============================================================
 @app.route('/send-notice', methods=['GET', 'POST'])
 def send_notice():
-    guard = require_student()
+    # FIX: Changed require_student() to require_admin() to lock down systemic notice triggers
+    guard = require_admin()
     if guard: return guard
 
-    # In this project, reminders are per-user booking_notifications.
-    # This endpoint processes all due reminders for all users.
     if request.method == 'POST':
         try:
             now = malaysia_now().strftime("%Y-%m-%d %H:%M")
@@ -1173,7 +1172,6 @@ def send_notice():
         except Exception:
             flash("Failed to send notices.")
 
-        # Stay on the page
         return redirect('/send-notice')
 
     return render_template('sendnotice.html')
@@ -1184,4 +1182,3 @@ def send_notice():
 # ============================================================
 if __name__ == "__main__":
     app.run(debug=True)
-
