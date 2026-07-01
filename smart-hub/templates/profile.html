@@ -156,67 +156,11 @@
           </form>
         </section>
 
-        <section class="profile-card">
-          <h2 class="profile-title">Account Settings</h2>
-          <form method="POST" action="/profile/password" class="subform">
-            <div class="grid-2">
-              <div class="field">
-                <label class="field-label" for="current-password">Current password</label>
-                <input id="current-password" name="current_password" type="password" />
-              </div>
-              <div class="field">
-                <label class="field-label" for="new-password">New password</label>
-                <input id="new-password" name="new_password" type="password" />
-              </div>
-            </div>
-            <div class="grid-2">
-              <div class="field">
-                <label class="field-label" for="confirm-password">Confirm password</label>
-                <input id="confirm-password" name="confirm_password" type="password" />
-              </div>
-              <div class="field" style="align-self:end;">
-                <button class="btn btn-outline" type="submit">Change Password</button>
-              </div>
-            </div>
-          </form>
-          <p class="help-text">Password change uses demo storage (not connected to users table in this repo version).</p>
-        </section>
       </div>
 
-      <div class="profile-right">
-        <section class="profile-card">
-          <h2 class="profile-title">Booking Stats</h2>
-          <div class="stat-grid">
-            <div class="stat">
-              <div class="stat-num">{{ total_bookings }}</div>
-              <div class="stat-label">Total bookings</div>
-            </div>
-            <div class="stat">
-              <div class="stat-num">{{ favorite_count }}</div>
-              <div class="stat-label">Favorite facilities</div>
-            </div>
-          </div>
 
-          <div class="subsection-title">Favorite facilities</div>
-          <div class="favorites">
-            {% if favorites %}
-              {% for f in favorites %}
-                <div class="favorite-item">
-                  <span class="favorite-dot"></span>
-                  <div class="favorite-name">{{ f }}</div>
-                </div>
-              {% endfor %}
-            {% else %}
-              <div class="empty">No favorites yet.</div>
-            {% endif %}
-          </div>
-
-          <div class="subsection-title">Quick actions</div>
-<div class="quick-actions">
-            <button class="btn btn-primary" type="button" onclick="location.href='/dashboard'">Browse Facilities</button>
-          </div>
-        </section>
       </div>
+
     </section>
 
     <script>
