@@ -124,24 +124,8 @@
         <span class="search-icon" aria-hidden="true">🔎</span>
         <input id="facility-search" type="text" placeholder="Search facilities..." />
       </div>
-
-      <div class="filters">
-        <label class="sr-only" for="category-select">Category</label>
-        <select id="category-select" class="category-select">
-          <option value="all">All Categories</option>
-          <option value="academic">Academic</option>
-          <option value="sports">Sports</option>
-          <option value="others">Others</option>
-        </select>
-      </div>
     </section>
 
-    <section class="pills" aria-label="Quick filters">
-      <button class="pill active" data-pill="all" type="button">All</button>
-      <button class="pill" data-pill="academic" type="button">Academic</button>
-      <button class="pill" data-pill="sports" type="button">Sports</button>
-      <button class="pill" data-pill="others" type="button">Others</button>
-    </section>
 
     <section class="content">
       <div class="facilities-grid" id="facilities-grid"></div>
@@ -181,10 +165,8 @@
 
     const grid = document.getElementById('facilities-grid');
     const searchInput = document.getElementById('facility-search');
-    const categorySelect = document.getElementById('category-select');
-    const pills = Array.from(document.querySelectorAll('.pill'));
+    // Category filter UI removed (keep searching + 360° / booking)
 
-    let activePill = 'all';
 
     function render(items) {
       if (!items.length) {
@@ -223,32 +205,17 @@
 
     function applyFilters() {
       const q = (searchInput.value || '').trim().toLowerCase();
-      const selectVal = categorySelect.value;
-      const category = activePill !== 'all' ? activePill : selectVal;
       const filtered = facilities.filter(f => {
-        const matchesCategory = category === 'all' ? true : f.category === category;
         const matchesQuery = !q ? true : f.title.toLowerCase().includes(q);
-        return matchesCategory && matchesQuery;
+        return matchesQuery;
       });
       render(filtered);
     }
 
     searchInput.addEventListener('input', applyFilters);
-    categorySelect.addEventListener('change', () => {
-      activePill = 'all';
-      pills.forEach(p => p.classList.toggle('active', p.dataset.pill === 'all'));
-      applyFilters();
-    });
-    pills.forEach(p => {
-      p.addEventListener('click', () => {
-        activePill = p.dataset.pill;
-        pills.forEach(x => x.classList.toggle('active', x === p));
-        categorySelect.value = 'all';
-        applyFilters();
-      });
-    });
 
     render(facilities);
+
 
     // 360° lightbox — supports uploaded images and embedded URLs (teliportme, Matterport, etc.)
     function open360(src, title) {
